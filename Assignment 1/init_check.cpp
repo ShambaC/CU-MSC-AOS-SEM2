@@ -1,6 +1,7 @@
 #include<iostream>
 #include<fstream>
 #include<cctype>
+#include<string.h>
 
 using namespace std;
 
@@ -191,8 +192,13 @@ int main(int argc, char const *argv[])
             continue;
         }
 
-        int src = line[0];
-        int dst = line[2];
+        string token = strtok(line.data(), " ");
+        string Source = token;
+        token = strtok(NULL, " ");
+        string Dest = token;
+
+        int src = Source[0];
+        int dst = Dest[0];
 
         // label 1-10
         if (src > 48 && src < 58) {
@@ -201,8 +207,8 @@ int main(int argc, char const *argv[])
                 return -1;
             }
             else {
-                src -= 49;
-                dst -= 49;
+                src = stoi(Source) - 1;
+                dst = stoi(Dest) - 1;
             }
         }
         // label A-Z
@@ -239,18 +245,18 @@ int main(int argc, char const *argv[])
 
     // Get the node to check
     int start;
-    char node;
+    string node;
     cout << "Enter the node to check for initiator: ";
     cin >> node;
 
-    start = node;
+    start = node[0];
 
     // Adjust the starting value
     if (start > 64 && start < 91) {
         start -= 65;
     }
     else if (start > 48 && start < 58) {
-        start -= 49;
+        start = stoi(node) - 1;
     }
     else if (start > 96 && start < 123) {
         start -= 97;

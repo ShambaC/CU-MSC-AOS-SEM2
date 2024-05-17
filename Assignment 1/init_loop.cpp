@@ -1,6 +1,7 @@
 #include<iostream>
 #include<fstream>
 #include<cctype>
+#include<string.h>
 
 using namespace std;
 
@@ -151,6 +152,7 @@ int main(int argc, char const *argv[])
 
     // Get the filename from the command line argument
     string fileName = argv[1];
+    // string fileName = "file.txt";
     // Create input stream for the file
     ifstream inputFile(fileName);
 
@@ -200,8 +202,13 @@ int main(int argc, char const *argv[])
             continue;
         }
 
-        int src = line[0];
-        int dst = line[2];
+        string token = strtok(line.data(), " ");
+        string Source = token;
+        token = strtok(NULL, " ");
+        string Dest = token;
+
+        int src = Source[0];
+        int dst = Dest[0];
 
         // label 1-10
         if (src > 48 && src < 58) {
@@ -210,9 +217,9 @@ int main(int argc, char const *argv[])
                 return -1;
             }
             else {
-                src -= 49;
-                dst -= 49;
-                if(labelTypeIncrement == 0)  labelTypeIncrement = 49;
+                src = stoi(Source) - 1;
+                dst = stoi(Dest) - 1;
+                if(labelTypeIncrement == 0)  labelTypeIncrement = 1;
             }
         }
         // label A-Z
@@ -257,14 +264,14 @@ int main(int argc, char const *argv[])
 
         for (int j = 0; j < vertices; j++) {
             if (!visited[j]) {
-                cout << (char)(i + labelTypeIncrement) << " node cannot be used as an initiator.\n";
+                cout << (labelTypeIncrement == 1 ? i+1 : (char)(i + labelTypeIncrement)) << " node cannot be used as an initiator.\n";
                 flag = true;
                 break;
             }
         }
 
         if (!flag) {
-            cout << (char)(i + labelTypeIncrement) << " node can be used as an initiator!\n";
+            cout << (labelTypeIncrement == 1 ? i+1 : (char)(i + labelTypeIncrement)) << " node can be used as an initiator!\n";
         }
 
         // Reset
