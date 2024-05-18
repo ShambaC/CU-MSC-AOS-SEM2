@@ -125,18 +125,23 @@ void BFS(List* adjList[], int start, bool visited[], int queue[]) {
 */
 int main(int argc, char const *argv[])
 {
+    bool isLoop = false;
+
     // Show program usage
-    if (argc != 2) {
-        cout << "Program usage: init_check help | init_check <filename>";
+    if (argc < 2) {
+        cout << "Program usage: init_loop help | init <filename> | init loop <filename>";
         return -1;
     }
 
     string helpText = "help";
+    string loopText = "loop";
 
     // Show the help text
     if (helpText.compare(argv[1]) == 0) {
+        cout << endl << endl;
         cout << "This is a command line only program. The built exe cannot be run on its own.\n";
-        cout << "To the run the program, type in terminal: {program Name | default: 'init_check'} <filename.withExtension>\n";
+        cout << "To the run the program, type in terminal: {program Name | default: 'init'} <loop(optional)> <filename.withExtension>\n";
+        cout << "If the loop parameter is passed, all the nodes are checked without user input.\n";
         cout << "The program reads its required data from the given file.\n";
         cout << "Ensure that the provided file is a text file.\n";
         cout << "The file to be provided should be in the following format.\n";
@@ -145,12 +150,21 @@ int main(int argc, char const *argv[])
         cout << "5. The edge should be in the format <source><space><destination>\n";
         cout << "Restriction is that the vertex label can be of only one of the three types at once: \n";
         cout << "1. 1-10\n2. A-Z\n3. a-z\n";
-        cout << "After file parsing, enter the node to check.\n\n";
+        cout << "After file parsing, either a user given node will be checked or all nodes will be checked for eligibility.\n\n";
         return 0;
+    }
+    else if (loopText.compare(argv[1]) == 0) {
+        if (argc == 2) {
+            cout << "Give filename as an argument after selecting the loop parameter => init loop <filename>";
+            return -1;
+        }
+
+        isLoop = true;
     }
 
     // Get the filename from the command line argument
-    string fileName = argv[1];
+    string fileName = isLoop ? argv[2] : argv[1];
+    // string fileName = "file.txt";
     // Create input stream for the file
     ifstream inputFile(fileName);
 
@@ -186,6 +200,14 @@ int main(int argc, char const *argv[])
         visited[i] = false;
     }
 
+    /**
+     * Stores the type and incrementing of the labels used in the graph
+     * 49 => 1-10
+     * 65 => A-Z
+     * 97 => a-z
+    */
+    int labelTypeIncrement = 0;
+
     // parse the file to get the edges
     while(getline(inputFile, line)) {
         if (line[0] == '#' || isspace(line[0]) || line.empty()) {
@@ -209,6 +231,7 @@ int main(int argc, char const *argv[])
             else {
                 src = stoi(Source) - 1;
                 dst = stoi(Dest) - 1;
+                if(labelTypeIncrement == 0)  labelTypeIncrement = 1;
             }
         }
         // label A-Z
@@ -220,6 +243,7 @@ int main(int argc, char const *argv[])
             else {
                 src -= 65;
                 dst -= 65;
+                if(labelTypeIncrement == 0)  labelTypeIncrement = 65;
             }
         }
         // label a-z
@@ -231,6 +255,7 @@ int main(int argc, char const *argv[])
             else {
                 src -= 97;
                 dst -= 97;
+                if(labelTypeIncrement == 0)  labelTypeIncrement = 97;
             }
         }
         else {
@@ -243,42 +268,72 @@ int main(int argc, char const *argv[])
 
     cout << "All edges added successfully !" << endl;
 
-    // Get the node to check
-    int start;
-    string node;
-    cout << "Enter the node to check for initiator: ";
-    cin >> node;
+    if (isLoop) {
+        for (int i = 0; i < vertices; i++) {
+            bool flag = false;
 
-    start = node[0];
+            // Perform BFS to check connectivity
+            BFS(adjList, i, visited, queue);
 
-    // Adjust the starting value
-    if (start > 64 && start < 91) {
-        start -= 65;
+            for (int j = 0; j < vertices; j++) {
+                if (!visited[j]) {
+                    cout << (labelTypeIncrement == 1 ? i+1 : (char)(i + labelTypeIncrement)) << " node cannot be used as an initiator.\n";
+                    flag = true;
+                    break;
+                }
+            }
+
+            if (!flag) {
+                cout << (labelTypeIncrement == 1 ? i+1 : (char)(i + labelTypeIncrement)) << " node can be used as an initiator!\n";
+            }
+
+            // Reset
+            for (int j = 0; j < vertices; j++) {
+                visited[j] = false;
+            }
+
+            front = 0;
+            rear = -1;
+        }
     }
-    else if (start > 48 && start < 58) {
-        start = stoi(node) - 1;
-    }
-    else if (start > 96 && start < 123) {
-        start -= 97;
-    }
+    else {
+        // Get the node to check
+        int start;
+        string node;
+        cout << "Enter the node to check for initiator: ";
+        cin >> node;
 
-    if (adjList[start] -> outDegree == 0) {
-        cout << "This node cannot be used as an initiator.";
-        return 0;
-    }
+        start = node[0];
 
-    // Perform BFS to check connectivity
-    BFS(adjList, start, visited, queue);
+        // Adjust the starting value
+        if (start > 64 && start < 91) {
+            start -= 65;
+        }
+        else if (start > 48 && start < 58) {
+            start = stoi(node) - 1;
+        }
+        else if (start > 96 && start < 123) {
+            start -= 97;
+        }
 
-    // Show results
-    for (int i = 0; i < vertices; i++) {
-        if (!visited[i]) {
+        if (adjList[start] -> outDegree == 0) {
             cout << "This node cannot be used as an initiator.";
             return 0;
         }
-    }
 
-    cout << "This node can be used as an initiator!";
+        // Perform BFS to check connectivity
+        BFS(adjList, start, visited, queue);
+
+        // Show results
+        for (int i = 0; i < vertices; i++) {
+            if (!visited[i]) {
+                cout << "This node cannot be used as an initiator.";
+                return 0;
+            }
+        }
+
+        cout << "This node can be used as an initiator!";
+    }
 
     return 0;
 }
