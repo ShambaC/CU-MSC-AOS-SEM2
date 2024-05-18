@@ -39,7 +39,8 @@ Node* createNode(int vertex) {
 }
 
 /**
- * Method to add edge to the graph
+ * Method to add edge to the graph.
+ * Destination node is appended to the linked list of the source node.
  * @param adjList The array containing all the head pointers to all the individual nodes
  * @param src The source vertex from which the edge starts
  * @param dst The destination vertex to which the edge points
@@ -155,7 +156,7 @@ int main(int argc, char const *argv[])
     }
     else if (loopText.compare(argv[1]) == 0) {
         if (argc == 2) {
-            cout << "Give filename as an argument after selecting the loop parameter => init loop <filename>";
+            cout << "ERROR: Give filename as an argument after selecting the loop parameter => init loop <filename>";
             return -1;
         }
 
@@ -164,7 +165,7 @@ int main(int argc, char const *argv[])
 
     // Get the filename from the command line argument
     string fileName = isLoop ? argv[2] : argv[1];
-    // string fileName = "file.txt";
+
     // Create input stream for the file
     ifstream inputFile(fileName);
 
@@ -179,10 +180,12 @@ int main(int argc, char const *argv[])
     // Read line by line to first parse the number of vertices
     string line;
     while(getline(inputFile, line)) {
+        // Skip empty lines, lines that contain any sort of blank character at the beggining and lines starting with '#'
         if (line[0] == '#' || isspace(line[0]) || line.empty()) {
             continue;
         }
 
+        // Convert the parsed string to an integer
         vertices = stoi(line);
         break;
     }
@@ -202,7 +205,7 @@ int main(int argc, char const *argv[])
 
     /**
      * Stores the type and incrementing of the labels used in the graph
-     * 49 => 1-10
+     * 1 => 1-10
      * 65 => A-Z
      * 97 => a-z
     */
@@ -214,11 +217,14 @@ int main(int argc, char const *argv[])
             continue;
         }
 
+        // Split the given line at spaces and get each label as tokens
         string token = strtok(line.data(), " ");
         string Source = token;
         token = strtok(NULL, " ");
         string Dest = token;
 
+        // Store the first character of the token
+        // This is done to check the type of label.
         int src = Source[0];
         int dst = Dest[0];
 
