@@ -281,16 +281,24 @@ int main(int argc, char const *argv[])
             // Perform BFS to check connectivity
             BFS(adjList, i, visited, queue);
 
+            string printText;
+            if (labelTypeIncrement == 1) {
+                printText = to_string(i + 1);
+            }
+            else {
+                printText = (char)(i + labelTypeIncrement);
+            }
+
             for (int j = 0; j < vertices; j++) {
                 if (!visited[j]) {
-                    cout << (labelTypeIncrement == 1 ? i+1 : (char)(i + labelTypeIncrement)) << " node cannot be used as an initiator.\n";
+                    cout << printText << " node cannot be used as an initiator.\n";
                     flag = true;
                     break;
                 }
             }
 
             if (!flag) {
-                cout << (labelTypeIncrement == 1 ? i+1 : (char)(i + labelTypeIncrement)) << " node can be used as an initiator!\n";
+                cout << printText << " node can be used as an initiator!\n";
             }
 
             // Reset
