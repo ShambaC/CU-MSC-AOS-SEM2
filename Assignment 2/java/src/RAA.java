@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 
 class Event {
     public int counter;
@@ -15,7 +17,8 @@ class Event {
 }
 
 class Node extends Thread {
-    int id;
+    public int id;
+    public List<Node> nodeList = new ArrayList<>();
 
     @Override
     public void run() {
