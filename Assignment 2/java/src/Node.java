@@ -123,25 +123,27 @@ public class Node extends JButton implements Runnable {
         System.out.println("\nNode" + siteId + " thread run\n");
         while (true) {
 
-            if (isRequestingCS) {
-                if (!allRequestSent) {
+            synchronized(this) {
+                if (isRequestingCS) {
+                    if (!allRequestSent) {
+                        for (Node node : nodeList) {
+                            replyList.put(node, node.request(this));
+                            localClock.counter += 1;
+                        }
+                        allRequestSent = true;
+                    }
+    
+                    boolean allRequestApproved = true;
                     for (Node node : nodeList) {
-                        replyList.put(node, node.request(this));
-                        localClock.counter += 1;
+                        if (!replyList.get(node)) {
+                            allRequestApproved = false;
+                        }
                     }
-                    allRequestSent = true;
-                }
-
-                boolean allRequestApproved = true;
-                for (Node node : nodeList) {
-                    if (!replyList.get(node)) {
-                        allRequestApproved = false;
+                    if (allRequestApproved) {
+                        isRequestingCS = false;
+                        isInCS = true;
+                        CSTimer();
                     }
-                }
-                if (allRequestApproved) {
-                    isRequestingCS = false;
-                    isInCS = true;
-                    CSTimer();
                 }
             }
         }
