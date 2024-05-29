@@ -4,3 +4,6 @@
 # doc files
 */*.docx
 */*.pdf
+
+# bin files
+*/java/bin
