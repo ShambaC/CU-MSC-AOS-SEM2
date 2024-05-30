@@ -71,7 +71,13 @@ public class Node extends JButton implements Runnable {
                 return false;
             }
             else {
-                return CSEvent.siteId < CSTimeStamp.siteId;
+                if (CSEvent.siteId < CSTimeStamp.siteId) {
+                    return true;
+                }
+                else {
+                    requestList.add(node);
+                    return false;
+                }
             }
         }
         else if (isInCS) {
