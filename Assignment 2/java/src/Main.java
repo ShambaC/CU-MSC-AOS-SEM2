@@ -1,10 +1,4 @@
 import java.awt.*;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Insets;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -20,6 +14,9 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.border.Border;
 
+/**
+ * Utility class to create a round button
+ */
 class RoundedBorder implements Border{
 
 	private int radius;
@@ -41,13 +38,24 @@ class RoundedBorder implements Border{
     }
 }
 
+/**
+ * Main runner class
+ */
 public class Main extends JFrame {
 
+    /**
+     * List of nodes
+     */
     static List<Node> nodeList = new ArrayList<>();
 
     int nodes;
 
     JPanel container;
+
+    // Define the colors
+    Color buttonBgIdle = new Color(185, 235, 255);
+    Color buttonBgInCS = new Color(166, 88, 76);
+    Color buttonBgRqst = new Color(201, 192, 133);
 
     public Main() {
         setTitle("Ricard Agrawala Algorithm Implementation");
@@ -56,23 +64,28 @@ public class Main extends JFrame {
         init();
     }
 
+    /**
+     * Initialize all the GUI components
+     */
     private void init() {
         container = new JPanel();
         container.setLayout(null);
-        Color buttonBg = new Color(185, 235, 255);
         Color buttonFg = new Color(0, 17, 61);
 
+        // Take input for number of nodes
         nodes = Integer.parseInt(JOptionPane.showInputDialog("Enter the no. of nodes: "));
 
         int res = JOptionPane.showConfirmDialog(this, "Do you want to log each node details every second ?", "Detail Log", JOptionPane.YES_NO_OPTION);
         boolean showDetailedLog = res == 0 ? true : false;
+
+        JOptionPane.showMessageDialog(this, "A Red node is in CS, a yellow node is requesting CS, a blue node is neither of them", "Information", JOptionPane.INFORMATION_MESSAGE);
         
         double angleIncrement = 2 * Math.PI / nodes;
         int radius = 200; // Radius of the circle
         int centerX = 480; // Center x of the circle
         int centerY = 380; // Center y of the circle
        
-
+        // Display the nodes in a circle
         for (int i = 0; i < nodes; i++) {
             double angle = i * angleIncrement;
             int x = (int) (centerX + radius * Math.cos(angle) - 40); // 40 is half of the button width for centering
@@ -84,13 +97,13 @@ public class Main extends JFrame {
             node.setFont(new Font("Bookman Old Style", Font.BOLD, 20));
             node.setBorder(new RoundedBorder(20));
             node.setBounds(x, y, 80, 50); // Set the button bounds
-            node.setBackground(buttonBg);
+            node.setBackground(buttonBgIdle);
             node.setForeground(buttonFg);
             nodeList.add(node);
             container.add(node);
         }
 
-
+        // Setup other nodes in network list of each node
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
             for (int j = 0; j < nodeList.size(); j++) {
@@ -103,6 +116,7 @@ public class Main extends JFrame {
             
         add(container, BorderLayout.CENTER);
 
+        // Start each node
         for (Node node : nodeList) {
             Thread t = new Thread(node);
             t.start();
@@ -110,6 +124,7 @@ public class Main extends JFrame {
 
         System.out.println("All threads started");
 
+        // Logging
         Timer timer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -126,30 +141,64 @@ public class Main extends JFrame {
     
     @Override
     public void paint(Graphics g) {
-        super.paint(g);
+        super.paintComponents(g);
+
+        g.setFont(new Font("Bookman Old Style", Font.BOLD, 16));
 
     	for(int i = 0; i < nodeList.size(); i++) {
-    		int x_pos = nodeList.get(i).getLocation().x + 70;
-    		int y_pos = nodeList.get(i).getLocation().y - 35;
+            Node currentNode = nodeList.get(i);
+
+            // Set node background color to appropriate color
+            if (currentNode.isRequestingCS) {
+                currentNode.setBackground(buttonBgRqst);
+            }
+            else if (currentNode.isInCS) {
+                currentNode.setBackground(buttonBgInCS);
+            }
+            else {
+                currentNode.setBackground(buttonBgIdle);
+            }
+
+            // Set location for list placeholders
+    		int x_pos = currentNode.getLocation().x + 70;
+    		int y_pos = currentNode.getLocation().y - 35;
     		int height = 50;
     		int width = 50;
     		
-    		int x_pos1 = nodeList.get(i).getLocation().x + 70;
-    		int y_pos1 = nodeList.get(i).getLocation().y + 85;
+    		int y_pos1 = currentNode.getLocation().y + 85;
+            int y_pos2 = y_pos1 + 65;
     		
     		
     		for(int j = 0; j < nodeList.size() - 1; j++) {
     			g.drawRect(x_pos, y_pos, width, height);
-    			g.drawRect(x_pos1, y_pos1, width, height);
+    			g.drawRect(x_pos, y_pos1, width, height);
+                g.drawString(Integer.toString(currentNode.nodeList.get(j).siteId), x_pos + 25, y_pos2);
+
+                if (currentNode.isRequestingCS || currentNode.isInCS) {
+
+                    // Display request list
+                    if (j <= currentNode.requestList.size() - 1) {
+                        String tempSiteId = Integer.toString(currentNode.requestList.get(j).siteId);
+                        g.drawString(tempSiteId, x_pos + 25, y_pos + 25);
+                    }
+
+                    // Display reply list
+                    Node otherNode = currentNode.nodeList.get(j);
+                    if (currentNode.replyList.containsKey(otherNode)) {
+                        String replyRes = Boolean.toString(currentNode.replyList.get(otherNode));
+                        g.drawString(replyRes, x_pos + 5, y_pos1 + 25);
+                    }
+                    
+                }
 
                 x_pos -= 50;
-                x_pos1 -= 50;
     		}
     	}
     }
     
 
     public static void main(String[] args) {
+        // Log the output to a file
         try {
             PrintStream fileStream = new PrintStream("outputLog.txt");
             System.setOut(fileStream);
@@ -160,6 +209,17 @@ public class Main extends JFrame {
 
         Main m = new Main();
         m.setVisible(true);
+
+        // Refresh the gui
+        Timer refreshTimer = new Timer(500, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                m.repaint();
+            }
+        });
+
+        refreshTimer.setRepeats(true);
+        refreshTimer.start();
     }
 }
 

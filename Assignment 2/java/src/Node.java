@@ -10,6 +10,9 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.Timer;
 
+/**
+ * Node class represents a node in a distributed system
+ */
 public class Node extends JButton implements Runnable {
     public int siteId;
     public List<Node> nodeList;
@@ -19,8 +22,8 @@ public class Node extends JButton implements Runnable {
 
     private EventClock CSTimeStamp;
 
-    private boolean isRequestingCS;
-    private boolean isInCS;
+    public boolean isRequestingCS;
+    public boolean isInCS;
 
     private boolean allRequestSent = false;
 
@@ -97,6 +100,11 @@ public class Node extends JButton implements Runnable {
         return replyVal;        
     }
 
+    /**
+     * Method to recieve custom reply from a node
+     * @param node Node sending the reply
+     * @param value Reply value
+     */
     public void reply(Node node, boolean value) {
         if (isRequestingCS) {
             localClock.counter += 1;
@@ -104,6 +112,9 @@ public class Node extends JButton implements Runnable {
         }
     }
 
+    /**
+     * Method to reset data when exiting CS
+     */
     private void stopCS() {
         System.out.println("\nNode" + siteId + " is now done with CS");
 
@@ -118,6 +129,9 @@ public class Node extends JButton implements Runnable {
         allRequestSent = false;
     }
 
+    /**
+     * Method to Enter CS for a random time
+     */
     private void CSTimer() {
         Random random = new Random(System.currentTimeMillis());
         int randomDelay = random.nextInt(1, 11) * 1000;
@@ -143,6 +157,7 @@ public class Node extends JButton implements Runnable {
 
             synchronized(this) {
                 if (isRequestingCS) {
+                    // Send request to all nodes
                     if (!allRequestSent) {
                         for (Node node : nodeList) {
                             replyList.put(node, node.request(this));
@@ -151,6 +166,7 @@ public class Node extends JButton implements Runnable {
                         allRequestSent = true;
                     }
     
+                    // Check reply from all nodes
                     boolean allRequestApproved = true;
                     for (Node node : nodeList) {
                         if (!replyList.get(node)) {

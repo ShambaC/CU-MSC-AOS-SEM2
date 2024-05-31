@@ -1,3 +1,7 @@
+/**
+ * Class to store event counters.
+ * Implementation of Logical clock
+ */
 public class EventClock {
     public int counter;
     public int siteId;
