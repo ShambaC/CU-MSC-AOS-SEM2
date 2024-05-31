@@ -26,8 +26,8 @@ public class Node extends JButton implements Runnable {
 
     private ActionListener nodeButtonListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-            System.out.println("--CLICKED--");
             if (!isRequestingCS && !isInCS) {
+                System.out.println("\nNode" + siteId + " requesting for CS at local clock counter: " + CSTimeStamp.counter);
                 isRequestingCS = true;
                 localClock.counter += 1;
                 CSTimeStamp.counter = localClock.counter;
@@ -58,34 +58,43 @@ public class Node extends JButton implements Runnable {
      * @return Approval Reply
      */
     public boolean request(Node node) {
-        System.out.println(siteId + " has received a request message from " + node.siteId);
+        System.out.println("\n" + siteId + " has received a request message from " + node.siteId);
         localClock.counter += 1;
+
+        boolean replyVal;
 
         EventClock CSEvent = node.CSTimeStamp;
         if (isRequestingCS) {
             if (CSEvent.counter < CSTimeStamp.counter) {
-                return true;
+                replyVal = true;
             }
             else if (CSEvent.counter > CSTimeStamp.counter) {
+                System.out.println("Node" + siteId + " added Node" + node.siteId + " to its request List");
                 requestList.add(node);
-                return false;
+                replyVal = false;
             }
             else {
                 if (CSEvent.siteId < CSTimeStamp.siteId) {
-                    return true;
+                    replyVal = true;
                 }
                 else {
+                    System.out.println("Node" + siteId + " added Node" + node.siteId + " to its request List");
                     requestList.add(node);
-                    return false;
+                    replyVal = false;
                 }
             }
         }
         else if (isInCS) {
+            System.out.println("Node" + siteId + " added Node" + node.siteId + " to its request List");
             requestList.add(node);
-            return false;
+            replyVal = false;
+        }
+        else {
+            replyVal = true;
         }
 
-        return true;
+        System.out.println("Node" + siteId + " replied " + replyVal + " to Node" + node.siteId);
+        return replyVal;        
     }
 
     public void reply(Node node, boolean value) {
@@ -96,8 +105,11 @@ public class Node extends JButton implements Runnable {
     }
 
     private void stopCS() {
+        System.out.println("\nNode" + siteId + " is now done with CS");
+
         isInCS = false;
         for (Node node : requestList) {
+            System.out.println("Node" + siteId + " gave approval to Node" + node.siteId + " after CS");
             node.reply(this, true);
             localClock.counter += 1;
         }
