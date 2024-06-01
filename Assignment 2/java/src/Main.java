@@ -39,6 +39,99 @@ class RoundedBorder implements Border{
 }
 
 /**
+ * Custom panel class
+ */
+class Container extends JPanel {
+
+    private List<Node> nodeList;
+    private Image img;
+    private boolean staticPainted = false;
+
+    private Color buttonBgIdle = new Color(185, 235, 255);
+    private Color buttonBgInCS = new Color(166, 88, 76);
+    private Color buttonBgRqst = new Color(201, 192, 133);
+
+    public Container() {
+        super();
+    }
+
+    public void setNodeList(List<Node> nodeList) {
+        this.nodeList = nodeList;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        Graphics2D g2d;
+
+        if (img == null) {
+            img = createImage(getSize().width, getSize().height);
+        }
+
+        g.drawImage(img, 0, 0, null);
+
+        g.setFont(new Font("Bookman Old Style", Font.BOLD, 16));
+
+    	for(int i = 0; i < nodeList.size(); i++) {
+            Node currentNode = nodeList.get(i);
+
+            // Set node background color to appropriate color
+            if (currentNode.isRequestingCS) {
+                currentNode.setBackground(buttonBgRqst);
+            }
+            else if (currentNode.isInCS) {
+                currentNode.setBackground(buttonBgInCS);
+            }
+            else {
+                currentNode.setBackground(buttonBgIdle);
+            }
+
+            // Set location for list placeholders
+    		int x_pos = currentNode.getLocation().x + 70;
+    		int y_pos = currentNode.getLocation().y - 50;
+    		int height = 50;
+    		int width = 50;
+    		
+    		int y_pos1 = currentNode.getLocation().y + 50;
+            int y_pos2 = y_pos1 + 65;
+    		
+    		
+    		for(int j = 0; j < nodeList.size() - 1; j++) {
+                
+                if (!staticPainted && img != null) {
+                    g2d = (Graphics2D) img.getGraphics();
+
+                    g2d.drawRect(x_pos, y_pos, width, height);
+                    g2d.drawRect(x_pos, y_pos1, width, height);
+                    g2d.drawString(Integer.toString(currentNode.nodeList.get(j).siteId), x_pos + 25, y_pos2);
+                }
+
+                if (currentNode.isRequestingCS || currentNode.isInCS) {
+
+                    // Display request list
+                    if (j <= currentNode.requestList.size() - 1) {
+                        String tempSiteId = Integer.toString(currentNode.requestList.get(j).siteId);
+                        g.drawString(tempSiteId, x_pos + 25, y_pos + 25);
+                    }
+
+                    // Display reply list
+                    Node otherNode = currentNode.nodeList.get(j);
+                    if (currentNode.replyList.containsKey(otherNode)) {
+                        String replyRes = Boolean.toString(currentNode.replyList.get(otherNode));
+                        g.drawString(replyRes, x_pos + 5, y_pos1 + 25);
+                    }
+                    
+                }
+
+                x_pos -= 50;
+    		}
+    	}
+        staticPainted = true;
+    }
+}
+
+/**
  * Main runner class
  */
 public class Main extends JFrame {
@@ -50,7 +143,7 @@ public class Main extends JFrame {
 
     int nodes;
 
-    JPanel container;
+    Container container;
 
     // Define the colors
     Color buttonBgIdle = new Color(185, 235, 255);
@@ -68,7 +161,7 @@ public class Main extends JFrame {
      * Initialize all the GUI components
      */
     private void init() {
-        container = new JPanel();
+        container = new Container();
         container.setLayout(null);
         Color buttonFg = new Color(0, 17, 61);
 
@@ -102,6 +195,8 @@ public class Main extends JFrame {
             nodeList.add(node);
             container.add(node);
         }
+
+        container.setNodeList(nodeList);
 
         // Setup other nodes in network list of each node
         for (int i = 0; i < nodeList.size(); i++) {
@@ -137,63 +232,6 @@ public class Main extends JFrame {
 
         timer.setRepeats(true);
         if (showDetailedLog)    timer.start();
-    }
-    
-    @Override
-    public void paint(Graphics g) {
-        super.paintComponents(g);
-
-        g.setFont(new Font("Bookman Old Style", Font.BOLD, 16));
-
-    	for(int i = 0; i < nodeList.size(); i++) {
-            Node currentNode = nodeList.get(i);
-
-            // Set node background color to appropriate color
-            if (currentNode.isRequestingCS) {
-                currentNode.setBackground(buttonBgRqst);
-            }
-            else if (currentNode.isInCS) {
-                currentNode.setBackground(buttonBgInCS);
-            }
-            else {
-                currentNode.setBackground(buttonBgIdle);
-            }
-
-            // Set location for list placeholders
-    		int x_pos = currentNode.getLocation().x + 70;
-    		int y_pos = currentNode.getLocation().y - 35;
-    		int height = 50;
-    		int width = 50;
-    		
-    		int y_pos1 = currentNode.getLocation().y + 85;
-            int y_pos2 = y_pos1 + 65;
-    		
-    		
-    		for(int j = 0; j < nodeList.size() - 1; j++) {
-    			g.drawRect(x_pos, y_pos, width, height);
-    			g.drawRect(x_pos, y_pos1, width, height);
-                g.drawString(Integer.toString(currentNode.nodeList.get(j).siteId), x_pos + 25, y_pos2);
-
-                if (currentNode.isRequestingCS || currentNode.isInCS) {
-
-                    // Display request list
-                    if (j <= currentNode.requestList.size() - 1) {
-                        String tempSiteId = Integer.toString(currentNode.requestList.get(j).siteId);
-                        g.drawString(tempSiteId, x_pos + 25, y_pos + 25);
-                    }
-
-                    // Display reply list
-                    Node otherNode = currentNode.nodeList.get(j);
-                    if (currentNode.replyList.containsKey(otherNode)) {
-                        String replyRes = Boolean.toString(currentNode.replyList.get(otherNode));
-                        g.drawString(replyRes, x_pos + 5, y_pos1 + 25);
-                    }
-                    
-                }
-
-                x_pos -= 50;
-    		}
-    	}
     }
     
 
