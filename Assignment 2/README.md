@@ -8,4 +8,4 @@ You can read about the algorthm [here](https://en.wikipedia.org/wiki/Ricart%E2%8
 ## Plans
 For now the plan is two write two different scripts:
 - Java with Swing
-- C++ with [HCL](https://github.com/hanoglu/HComponentLibrary)
+- C++ with probably ImGui
