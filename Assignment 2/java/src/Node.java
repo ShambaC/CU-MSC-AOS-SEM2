@@ -30,7 +30,7 @@ public class Node extends JButton implements Runnable {
     private ActionListener nodeButtonListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             if (!isRequestingCS && !isInCS) {
-                System.out.println("\nNode" + siteId + " requesting for CS at local clock counter: " + CSTimeStamp.counter);
+                System.out.println("\nNode" + siteId + " requesting for CS at local clock counter: " + (localClock.counter + 1));
                 isRequestingCS = true;
                 localClock.counter += 1;
                 CSTimeStamp.counter = localClock.counter;
@@ -62,7 +62,7 @@ public class Node extends JButton implements Runnable {
      */
     public boolean request(Node node) {
         System.out.println("\n" + siteId + " has received a request message from " + node.siteId);
-        localClock.counter += 1;
+        localClock.counter = Math.max(node.localClock.counter, localClock.counter) + 1;
 
         boolean replyVal;
 
@@ -107,7 +107,7 @@ public class Node extends JButton implements Runnable {
      */
     public void reply(Node node, boolean value) {
         if (isRequestingCS) {
-            localClock.counter += 1;
+            localClock.counter = Math.max(node.localClock.counter, localClock.counter) + 1;
             replyList.put(node, value);
         }
     }
@@ -121,8 +121,8 @@ public class Node extends JButton implements Runnable {
         isInCS = false;
         for (Node node : requestList) {
             System.out.println("Node" + siteId + " gave approval to Node" + node.siteId + " after CS");
-            node.reply(this, true);
             localClock.counter += 1;
+            node.reply(this, true);
         }
         requestList.clear();
         replyList.replaceAll((key, oldValue) -> false);
@@ -160,8 +160,8 @@ public class Node extends JButton implements Runnable {
                     // Send request to all nodes
                     if (!allRequestSent) {
                         for (Node node : nodeList) {
-                            replyList.put(node, node.request(this));
                             localClock.counter += 1;
+                            replyList.put(node, node.request(this));
                         }
                         allRequestSent = true;
                     }
