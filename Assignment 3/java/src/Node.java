@@ -58,13 +58,17 @@ public class Node extends JButton implements Runnable {
 
     @Override
     public void run() {
-        if (isRequestingCS) {
-            if (isPHold) {
-
-            }
-            else if (!isRequestSent) {
-                this.nextNode.sendRequest(this);
-                isRequestSent = true;
+        synchronized(this) {
+            while (true) {
+                if (isRequestingCS) {
+                    if (isPHold) {
+        
+                    }
+                    else if (!isRequestSent) {
+                        this.nextNode.sendRequest(this);
+                        isRequestSent = true;
+                    }
+                }
             }
         }
     }
