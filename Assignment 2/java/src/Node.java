@@ -134,17 +134,32 @@ public class Node extends JButton implements Runnable {
      */
     private void CSTimer() {
         Random random = new Random(System.currentTimeMillis());
-        int randomDelay = random.nextInt(1, 11) * 1000;
+        int randomDelay = random.nextInt(1, 11);
 
-        System.out.println("\nNode" + siteId + " going into CS for " + randomDelay / 1000 + "s\n");
+        System.out.println("\nNode" + siteId + " going into CS for " + randomDelay + "s\n");
 
-        Timer timer = new Timer(randomDelay, new ActionListener() {
+        Timer countDownTimer = new Timer(1000, new ActionListener() {
+            int remainingTime = randomDelay;
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                remainingTime--;
+                setText(Integer.toString(siteId) + ", " + remainingTime);
+            }
+        });
+
+        Timer timer = new Timer(randomDelay * 1000, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                countDownTimer.stop();
+                setText(Integer.toString(siteId));
                 stopCS();
             }
         });
+
+        countDownTimer.setRepeats(true);
+        countDownTimer.start();
 
         timer.setRepeats(false);
         timer.start();
