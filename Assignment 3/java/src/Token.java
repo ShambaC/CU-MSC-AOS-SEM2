@@ -35,4 +35,22 @@ public class Token extends JPanel {
 
         Point coords = getLocation();
     }
+
+    @Override
+    public String toString() {
+        String outString = "\n\n<----TOKEN---->\n";
+
+        outString += isAtLocation ? "Current Location: Node " + node.id : "Target Location: Node" + node.id;
+        outString += "\nQueue: [";
+
+        Node[] queuArr = (Node[]) queue.toArray();
+
+        for (int i = 0; i < queuArr.length; i++) {
+            outString += "Node " + queuArr[i].id + ", ";
+        }
+
+        outString += "]\n\n";
+
+        return outString;
+    }
 }
