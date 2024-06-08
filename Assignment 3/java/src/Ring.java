@@ -3,22 +3,17 @@ import java.util.LinkedList;
 /**
  * Singleton class that represents a distributed system connected in a ring topology
  */
-public class Ring {
+public class Ring extends LinkedList<Node> {
     /**
      * Instance variable of the class
      */
     private static Ring instance;
-
-    /**
-     * List to store all the nodes in the system
-     */
-    private LinkedList<Node> nodeList;
  
     /**
      * Private constructor to avoid making new copies of this class's object
      */
     private Ring() {
-        nodeList = new LinkedList<>();
+        super();
     }
 
     /**
@@ -37,17 +32,22 @@ public class Ring {
      * Method to add a node to the system
      * @param node The node to be added to the system
      */
-    public void add(Node node) {
-        if (!nodeList.isEmpty()) {
-            Node lastNode = nodeList.getLast();
+    @Override
+    public boolean add(Node node) {
+        boolean res = true;
+
+        if (!this.isEmpty()) {
+            Node lastNode = this.getLast();
             lastNode.setNextNode(node);
-            nodeList.add(node);
+            res = super.add(node);
  
-            Node firstNode = nodeList.getFirst();
+            Node firstNode = this.getFirst();
             node.setNextNode(firstNode);
         }
         else {
-            nodeList.add(node);
+            res = super.add(node);
         }
+
+        return res;
     }
 }

@@ -57,7 +57,7 @@ public class Node extends JButton implements Runnable {
             }
             else {
                 System.out.println("\nNode " + id + " is p_hold but not in CS, forwarding the token to next Node " + this.nextNode.id + ", destination: Node " + node.id);
-                token.setNode(node);
+                token.setNodeId(node.id);
                 this.isPHold = false;
                 this.nextNode.sendToken(token);
             }
@@ -71,7 +71,7 @@ public class Node extends JButton implements Runnable {
     }
 
     public void sendToken(Token recievedToken) {
-        if (recievedToken.node.id.equals(this.id)) {
+        if (recievedToken.nodeId.equals(this.id)) {
             System.out.println("\nRecieved token at Node " + id + ", this is the required destination. Making it p_hold");
             this.isPHold = true;
             this.token = recievedToken;
@@ -124,7 +124,7 @@ public class Node extends JButton implements Runnable {
         if (!token.queue.isEmpty()) {
             Node nextInQueue = token.queue.poll();
 
-            token.setNode(nextInQueue);
+            token.setNodeId(nextInQueue.id);
             isPHold = false;
             this.nextNode.sendToken(token);
         }
