@@ -6,7 +6,10 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 import javax.swing.JPanel;
- 
+
+/**
+ * Token class
+ */
 public class Token extends JPanel {
     public String nodeId;
     public Queue<Node> queue;
@@ -31,20 +34,31 @@ public class Token extends JPanel {
         this.isAtLocation = value;
     }
 
+    /**
+     * TO display the token data
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        int x_pos = 70;
-        int y_pos = 50;
-        int height = 50;
-        int width = 50;
+        int x_pos = 90;
+        int y_pos = 5;
+        int height = 30;
+        int width = 20;
 
         g.setFont(new Font("Bookman Old Style", Font.BOLD, 16));
         g.setColor(Color.black);
 
-        g.drawRect(x_pos, y_pos, width, height);
-        g.drawString(nodeId, x_pos + 10, y_pos - 10);
+        g.drawString("<TOKEN>", x_pos, y_pos + 10);
+
+        Object[] queueArr = queue.toArray();
+
+        for (int i = 0; i < queueArr.length; i++) {
+            Node currNode = (Node) queueArr[i];
+            g.drawRect(x_pos, y_pos + 20, width, height);
+            g.drawString(currNode.id, x_pos + 5, y_pos + height + 5);
+            x_pos += width + 5;
+        }
     }
 
     @Override

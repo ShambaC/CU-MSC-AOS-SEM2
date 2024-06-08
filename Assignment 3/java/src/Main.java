@@ -19,6 +19,9 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.border.Border;
 
+/**
+ * Utility class to create a round button
+ */
 class RoundedBorder implements Border {
     private int radius;
 
@@ -42,8 +45,14 @@ class RoundedBorder implements Border {
     }
 }
 
+/**
+ * Main runner class
+ */
 public class Main extends JFrame {
 
+    /**
+     * List of nodes in a custom circular queue
+     */
     static Ring nodeList = Ring.getInstance();
 
     private int nodes;
@@ -58,23 +67,30 @@ public class Main extends JFrame {
         init();
     }
 
+    /**
+     * Initialize all the GUI components
+     */
     private void init() {
         JPanel container = new JPanel();
         container.setLayout(null);
 
         Color buttonFg = new Color(255, 255, 255);
 
+        // Take input for number of nodes
         nodes = Integer.parseInt(JOptionPane.showInputDialog("Enter the number of nodes: "));
 
         int res = JOptionPane.showConfirmDialog(this, "Do you want to log each node details every second ?", "Detail Log", JOptionPane.YES_NO_OPTION);
         logTokenDetails = res == 0 ? true : false;
 
+        JOptionPane.showMessageDialog(this, "A Green node is in CS, a Red node is requesting CS and a Blue node is currently idle", "Information", JOptionPane.INFORMATION_MESSAGE);
+
         double angleIncrement = 2 * Math.PI / nodes;
         Dimension window = getSize();
-        double radius = window.getHeight() / 2 - 100;
-        double centerX = window.getHeight() / 2 - 20;
-        double centerY = window.getWidth() / 2 - 20;
+        double radius = window.getHeight() / 2 - 150;   // Radius of the circle
+        double centerX = window.getHeight() / 2 - 20;   // Center X of the circle
+        double centerY = window.getWidth() / 2 - 20;    // Center y of the circle
 
+        // Display the nodes in a circle
         for (int i = 0; i < nodes; i++) {
             Node node = new Node(Integer.toString(i));
 
@@ -92,6 +108,7 @@ public class Main extends JFrame {
             container.add(node);
         }
 
+        // Choose a random started node to hold the token
         Random random = new Random(System.currentTimeMillis());
         int index = random.nextInt(0, nodes);
         Node randomStarterNode = nodeList.get(index);
@@ -141,6 +158,7 @@ public class Main extends JFrame {
         Main guiWindow = new Main();
         guiWindow.setVisible(true);
 
+        // Refresh the gui window at 2 FPS
         Timer timer = new Timer(500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -1,3 +1,5 @@
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,6 +8,9 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.Timer;
 
+/**
+ * Node class represents a node in a distributed system
+ */
 public class Node extends JButton implements Runnable {
  
     public String id;
@@ -46,6 +51,10 @@ public class Node extends JButton implements Runnable {
         return this.nextNode;
     }
 
+    /**
+     * Method to send request to next nodes in the network requesting for CS
+     * @param node The node sending the request
+     */
     public void sendRequest(Node node) {
         System.out.println("\nNode " + id + " has recieved a request from Node " + node.id);
 
@@ -71,6 +80,10 @@ public class Node extends JButton implements Runnable {
         }
     }
 
+    /**
+     * Method to pass the token along the network
+     * @param recievedToken the token of the network
+     */
     public void sendToken(Token recievedToken) {
         if (recievedToken.nodeId.equals(this.id)) {
             System.out.println("\nRecieved token at Node " + id + ", this is the required destination. Making it p_hold");
@@ -87,6 +100,9 @@ public class Node extends JButton implements Runnable {
         }
     }
 
+    /**
+     * Method to start CS and stay in CS for a random amount of time
+     */
     private void startCS() {
         Random random = new Random(System.currentTimeMillis());
         int randomDelay = random.nextInt(2, 11);
@@ -120,6 +136,9 @@ public class Node extends JButton implements Runnable {
         timer.start();
     }
 
+    /**
+     * Method to stop CS and reset required flags and handle token
+     */
     private void stopCS() {
         System.out.println("\nNode " + id + " is done with CS.");
         isInCS = false;
@@ -151,6 +170,24 @@ public class Node extends JButton implements Runnable {
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if (isInCS) {
+            setBackground(Color.green);
+            setForeground(Color.black);
+        }
+        else if (isRequestingCS) {
+            setBackground(Color.red);
+            setForeground(Color.white);
+        }
+        else {
+            setBackground(Color.blue);
+            setForeground(Color.white);
         }
     }
 }
