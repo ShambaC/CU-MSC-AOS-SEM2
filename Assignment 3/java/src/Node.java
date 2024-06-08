@@ -1,3 +1,4 @@
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
@@ -46,7 +47,7 @@ public class Node extends JButton implements Runnable {
     }
 
     public void sendRequest(Node node) {
-        System.out.println("\nNode " + node.id + " has sent a request to Node " + id);
+        System.out.println("\nNode " + id + " has recieved a request from Node " + node.id);
 
         if (this.isPHold) {
             if (isInCS) {
@@ -76,7 +77,8 @@ public class Node extends JButton implements Runnable {
             this.isPHold = true;
             this.token = recievedToken;
             this.token.setIsAtLocation(true);
-            this.token.setLocation(this.getLocation().x, this.getLocation().y + this.getHeight());
+            Point tokenLoc = new Point(this.getLocation().x, this.getLocation().y);
+            this.token.setLocation(tokenLoc);
         }
         else {
             System.out.println("\nRecieved token at Node " + id + ", not the required destination, forwarding token to Node " + this.nextNode.id);
@@ -87,7 +89,7 @@ public class Node extends JButton implements Runnable {
 
     private void startCS() {
         Random random = new Random(System.currentTimeMillis());
-        int randomDelay = random.nextInt(1, 11);
+        int randomDelay = random.nextInt(2, 11);
 
         System.out.println("\nNode " + id + " going into CS for " + randomDelay + "s\n");
 
@@ -119,11 +121,13 @@ public class Node extends JButton implements Runnable {
     }
 
     private void stopCS() {
+        System.out.println("\nNode " + id + " is done with CS.");
         isInCS = false;
 
         if (!token.queue.isEmpty()) {
             Node nextInQueue = token.queue.poll();
 
+            System.out.println("Passing the token to the next node " + this.nextNode.id);
             token.setNodeId(nextInQueue.id);
             isPHold = false;
             this.nextNode.sendToken(token);
@@ -132,11 +136,12 @@ public class Node extends JButton implements Runnable {
 
     @Override
     public void run() {
-        synchronized(this) {
-            while (true) {
+        while (true) {
+            synchronized(this) {
                 if (isRequestingCS) {
                     if (isPHold) {
                         isRequestingCS = false;
+                        isRequestSent = false;
                         isInCS = true;
                         startCS();
                     }

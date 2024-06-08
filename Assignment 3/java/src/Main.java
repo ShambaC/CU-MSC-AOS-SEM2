@@ -1,16 +1,46 @@
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import javax.swing.border.Border;
+
+class RoundedBorder implements Border {
+    private int radius;
+
+    public RoundedBorder(int radius) {
+        this.radius = radius;
+    }
+
+    @Override
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        g.drawRoundRect(x, y, width, height, radius * 5, radius * 5);
+    }
+
+    @Override
+    public Insets getBorderInsets(Component c) {
+        return new Insets(radius, radius, radius, radius);
+    }
+
+    @Override
+    public boolean isBorderOpaque() {
+        return false;
+    }
+}
 
 public class Main extends JFrame {
 
@@ -18,40 +48,64 @@ public class Main extends JFrame {
 
     private int nodes;
     private boolean logTokenDetails;
+    private Token token;
     
     public Main() {
-        setTitle("Token Ring");
-        setSize(1000, 800);
+        setTitle("Token Ring Based Algorithm");
+        setSize(800, 800);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         init();
     }
 
     private void init() {
-        JPanel container = new JPanel(new FlowLayout());
+        JPanel container = new JPanel();
+        container.setLayout(null);
+
+        Color buttonFg = new Color(255, 255, 255);
 
         nodes = Integer.parseInt(JOptionPane.showInputDialog("Enter the number of nodes: "));
 
         int res = JOptionPane.showConfirmDialog(this, "Do you want to log each node details every second ?", "Detail Log", JOptionPane.YES_NO_OPTION);
         logTokenDetails = res == 0 ? true : false;
 
+        double angleIncrement = 2 * Math.PI / nodes;
+        Dimension window = getSize();
+        double radius = window.getHeight() / 2 - 100;
+        double centerX = window.getHeight() / 2 - 20;
+        double centerY = window.getWidth() / 2 - 20;
+
         for (int i = 0; i < nodes; i++) {
             Node node = new Node(Integer.toString(i));
+
+            double angle = i * angleIncrement;
+            int x = (int) (centerX + radius * Math.cos(angle) - 40); // 40 is half of the button width for centering
+            int y = (int) (centerY + radius * Math.sin(angle) - 25); // 25 is half of the button height for centering
+
             node.setSize(50, 50);
             node.setFont(new Font("Bookman Old Style", Font.BOLD, 20));
+            node.setBorder(new RoundedBorder(20));
+            node.setBounds(x, y, 80, 50);
+            node.setBackground(Color.blue);
+            node.setForeground(buttonFg);
             nodeList.add(node);
             container.add(node);
         }
 
-
-        int index = (int) Math.random() * nodeList.size();
+        Random random = new Random(System.currentTimeMillis());
+        int index = random.nextInt(0, nodes);
         Node randomStarterNode = nodeList.get(index);
-        Token token = new Token().setNodeId(randomStarterNode.id);
+        token = new Token().setNodeId(randomStarterNode.id);
         System.out.println("Token initialized at Node" + randomStarterNode.id);
-        token.setLocation(randomStarterNode.getLocation().x, randomStarterNode.getLocation().y + randomStarterNode.getHeight());
+        Point tokenLoc = new Point(randomStarterNode.getLocation().x, randomStarterNode.getLocation().y);
+        container.add(token);
+        token.setLocation(tokenLoc);
+        System.out.println();
+        token.setSize(300, 300);
         randomStarterNode.token = token;
         randomStarterNode.isPHold = true;
 
-        add(container);
+        add(container, BorderLayout.CENTER);
 
         // Start threads
         for (Node node : nodeList) {
@@ -84,13 +138,14 @@ public class Main extends JFrame {
             err.printStackTrace();
         }
 
-        Main m = new Main();
-        m.setVisible(true);
+        Main guiWindow = new Main();
+        guiWindow.setVisible(true);
 
         Timer timer = new Timer(500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                m.repaint();
+                guiWindow.repaint();
+                guiWindow.revalidate();
             }
         });
 
