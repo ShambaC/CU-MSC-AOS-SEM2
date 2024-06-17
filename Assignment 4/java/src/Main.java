@@ -1,7 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
@@ -22,7 +21,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * Utility class to create a round button
@@ -66,12 +68,21 @@ class Container extends JPanel {
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
 
+            int width = node.getWidth();
+            int height = node.getHeight();
+
             Point p1 = node.getLocation();
             if (node.parent != null) {
                 Point p2 = node.parent.getLocation();
 
-                g.drawLine(p1.x, p1.y, p2.x, p2.y);
-                g.fillOval(p2.x, p2.y, 5, 5);
+                if (p2.y < p1.y) {
+                    g.drawLine(p1.x + width/2, p1.y, p2.x + width/2, p2.y + height + 2);
+                    g.fillOval(p2.x + width/2, p2.y + height + 2, 10, 10);
+                }
+                else {
+                    g.drawLine(p1.x + width/2, p1.y + height, p2.x + width/2, p2.y - 2);
+                    g.fillOval(p2.x + width/2, p2.y - 2, 10, 10);
+                }
             }
         }
     }
@@ -89,6 +100,12 @@ public class Main extends JFrame {
     }
 
     private void init() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
         // Define the colors
         Color buttonBgIdle = new Color(185, 235, 255);
         Color buttonBgInCS = new Color(166, 88, 76);
@@ -97,7 +114,9 @@ public class Main extends JFrame {
 
         container.setLayout(null);
 
-        JFileChooser fc = new JFileChooser();
+        JFileChooser fc = new JFileChooser("./");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
+        fc.setFileFilter(filter);
         int res = fc.showOpenDialog(this);
 
         if (res == JFileChooser.APPROVE_OPTION) {
@@ -116,11 +135,15 @@ public class Main extends JFrame {
 
                     node1.setSize(50, 50);
                     node1.setBorder(new RoundedBorder(20));
+                    node1.setContentAreaFilled(false);
+                    node1.setOpaque(true);
                     node1.setBackground(buttonBgIdle);
                     node1.setForeground(buttonFg);
 
                     node2.setSize(50, 50);
                     node2.setBorder(new RoundedBorder(20));
+                    node2.setContentAreaFilled(false);
+                    node2.setOpaque(true);
                     node2.setBackground(buttonBgIdle);
                     node2.setForeground(buttonFg);
 
