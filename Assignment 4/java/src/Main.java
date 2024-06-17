@@ -8,7 +8,9 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.Map;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.UIManager;
@@ -65,8 +68,22 @@ class Container extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        Color buttonBgIdle = new Color(185, 235, 255);
+        Color buttonBgInCS = new Color(166, 88, 76);
+        Color buttonBgRqst = new Color(201, 192, 133);
+
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
+
+            if (node.isRequestingCS) {
+                node.setBackground(buttonBgRqst);
+            }
+            else if (node.isInCS) {
+                node.setBackground(buttonBgInCS);
+            }
+            else {
+                node.setBackground(buttonBgIdle);
+            }
 
             int width = node.getWidth();
             int height = node.getHeight();
@@ -108,8 +125,6 @@ public class Main extends JFrame {
 
         // Define the colors
         Color buttonBgIdle = new Color(185, 235, 255);
-        Color buttonBgInCS = new Color(166, 88, 76);
-        Color buttonBgRqst = new Color(201, 192, 133);
         Color buttonFg = new Color(0, 17, 61);
 
         container.setLayout(null);
@@ -123,9 +138,11 @@ public class Main extends JFrame {
             try {
                 String content = new String(Files.readAllBytes(fc.getSelectedFile().toPath()));
 
-                // TODO LOGIC
+                int result = JOptionPane.showConfirmDialog(this, "Do you want to log each node details every second ?", "Detail Log", JOptionPane.YES_NO_OPTION);
+                boolean showDetailedLog = result == 0 ? true : false;
 
-                // Test
+                JOptionPane.showMessageDialog(this, "A Red node is in CS, a yellow node is requesting CS, a blue node is idle", "Information", JOptionPane.INFORMATION_MESSAGE);
+
                 String[] lines = content.split("\\r\\n");
                 int size = Integer.parseInt(lines[0].strip());
 
@@ -166,7 +183,37 @@ public class Main extends JFrame {
                 }
 
                 render();
+
+                // Set the root node as priviledged
+                for (int i = 0; i < nodeList.size(); i++) {
+                    Node node = nodeList.get(i);
+                    if (node.parent == null) {
+                        node.isPrivileged = true;
+                        break;
+                    }
+                }
+
                 add(container, BorderLayout.CENTER);
+
+                for (int i = 0; i < nodeList.size(); i++) {
+                    Node node = nodeList.get(i);
+                    Thread t = new Thread(node);
+                    t.start();
+                }
+
+                // Logging
+                Timer timer = new Timer(1000, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("\n-------------CURRENT STATUS------------");
+                        for (Node node : nodeList) {
+                            System.out.println(node);
+                        }
+                    }
+                });
+
+                timer.setRepeats(true);
+                if (showDetailedLog)    timer.start();
             }
             catch (IOException err) {
                 err.printStackTrace();
@@ -237,6 +284,14 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
+        try {
+            PrintStream fileStream = new PrintStream("outputLog.txt");
+            System.setOut(fileStream);
+        }
+        catch (FileNotFoundException err) {
+            err.printStackTrace();
+        }
+
         Main UI = new Main();
         UI.setVisible(true);
 
