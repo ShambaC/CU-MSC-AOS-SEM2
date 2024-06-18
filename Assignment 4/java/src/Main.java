@@ -215,6 +215,8 @@ public class Main extends JFrame {
 
                 // Create nodes dynamically with every edge
                 for (int i = 1; i < lines.length; i++) {
+                    if (lines[i].isBlank() || lines[i].startsWith("#"))     continue;
+
                     Node node1 = new Node(lines[i].split(" ")[0], size);
                     Node node2 = new Node(lines[i].split(" ")[1], size);
 
