@@ -105,12 +105,15 @@ class Container extends JPanel {
             // Set the color of the nodes according to their states
             if (node.isRequestingCS) {
                 node.setBackground(buttonBgRqst);
+                node.setForeground(Color.BLACK);
             }
             else if (node.isInCS) {
                 node.setBackground(buttonBgInCS);
+                node.setForeground(Color.WHITE);
             }
             else {
                 node.setBackground(buttonBgIdle);
+                node.setForeground(Color.BLACK);
             }
 
             int width = node.getWidth();
@@ -125,7 +128,7 @@ class Container extends JPanel {
                     // Image for the arrow head and calculation of its rotation angle
                     BufferedImage arrowHead = ImageIO.read(getClass().getResource("/images/arrowHead.png"));
 
-                    double slope = (p2.y - p1.y) / (p2.x - p1.x);
+                    double slope = (p2.x - p1.x) == 0 ? Double.POSITIVE_INFINITY : (p2.y - p1.y) / (p2.x - p1.x);
                     double theta = -Math.atan(slope);
 
                     AffineTransform at = new AffineTransform();
@@ -311,8 +314,8 @@ public class Main extends JFrame {
         int frameHeight = getSize().height;
         int frameWidth = getSize().width;
 
-        int xPadding = 50;
-        int yPadding = 50;
+        int xPadding = 10;
+        int yPadding = 10;
 
         int treeHeight = Collections.max(nodeLevels.values()) + 1;
 
