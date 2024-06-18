@@ -118,7 +118,7 @@ class Container extends JPanel {
                     BufferedImage arrowHead = ImageIO.read(getClass().getResource("/images/arrowHead.png"));
 
                     double slope = (p2.y - p1.y) / (p2.x - p1.x);
-                    double theta = Math.toRadians(Math.abs(Math.atan(slope)));
+                    double theta = -Math.atan(slope);
 
                     AffineTransform at = new AffineTransform();
 
@@ -130,15 +130,13 @@ class Container extends JPanel {
                         at.rotate(theta);
                         at.translate(-arrowHead.getWidth(this) / 2, -arrowHead.getHeight(this) / 2);
                         g2d.drawImage(arrowHead, at, null);
-                        //g.drawImage(arrowHead, p2.x + width/2, p2.y + height + 2, 10, 10, null);
                     }
                     else {
                         g.drawLine(p1.x + width/2, p1.y + height, p2.x + width/2, p2.y - 12);
                         at.translate(p2.x + width/2, p2.y - 12);
-                        at.rotate(theta);
+                        at.rotate(-theta);
                         at.translate(-arrowHead.getWidth(this) / 2, -arrowHead.getHeight(this) / 2);
                         g2d.drawImage(arrowHead, at, null);
-                        //g.drawImage(arrowHead, p2.x + width/2, p2.y - 12, 10, 10, null);
                     }
                 }
                 catch (IOException err) {
