@@ -9,82 +9,120 @@ import javax.swing.JButton;
 import javax.swing.Timer;
 
 public class Node extends JButton implements Runnable {
-    
-    public String id;
-    public Node parent;
-    public Queue<Node> queue;
-    public boolean isPrivileged;
-    public boolean isInCS = false;
-    public boolean isRequestingCS = false;
 
-    private ActionListener nodeBtnListener = new ActionListener() {
-    	public void actionPerformed(ActionEvent e) {
-    		if(!isRequestingCS && !isInCS) {
-    			System.out.println("\nNode " + id + " is requesting for CS");
-                isRequestingCS = true;
-    		}
-    	};
-    };
+	public String id;
+	public Node parent;
+	public Queue<Node> queue;
+	public boolean isPrivileged;
+	public boolean isInCS = false;
+	public boolean isRequestingCS = false;
 
-    public Node(String id, int size) {
-        super(id);
+	private boolean hasSentRequestToParent = false;
 
-        this.id = id;
-        this.parent = null;
-        this.queue = new ArrayDeque<>(size);
-        this.isPrivileged = false;
+	private ActionListener nodeBtnListener = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			if (!isRequestingCS && !isInCS) {
+				System.out.println("\nNode " + id + " is requesting for CS");
+				isRequestingCS = true;
+			}
+		};
+	};
 
-        this.addActionListener(nodeBtnListener);
-    }
+	public Node(String id, int size) {
+		super(id);
 
-    public Node setParent(Node parent) {
-        this.parent = parent;
+		this.id = id;
+		this.parent = null;
+		this.queue = new ArrayDeque<>(size);
+		this.isPrivileged = false;
 
-        return this;
-    }
+		this.addActionListener(nodeBtnListener);
+	}
 
-    @Override
-    public void run() {
-        while(true) {
-        	synchronized(this) {
-        		if(isRequestingCS) {
-        			if(isPrivileged) {
-        				isRequestingCS = false;
-        				isInCS = true;
-        				startCS();
-        			}
-        			else {
-        				this.queue.add(this);
-        				Node parent = this.parent;
-        				Node child = this;
-        				while(parent != null) {
-        					parent.queue.add(child);
-        					child = parent;
-        					parent = parent.parent;
-        				}
-        			}
-        		}
-        	}
-        }
-    }
+	public Node setParent(Node parent) {
+		this.parent = parent;
 
-    private void startCS() {
+		return this;
+	}
+
+	public void add(Node node) {
+		System.out.println("\nNode " + id + " adding Node " + node.id + " to its queue.");
+		this.queue.add(node);
+	}
+
+	@Override
+	public void run() {
+		while (true) {
+			synchronized (this) {
+				if (isRequestingCS) {
+					if (!this.queue.contains(this)) {
+						this.add(this);
+						if (this.parent != null && !hasSentRequestToParent) {
+							this.parent.sendRequest(this);
+							hasSentRequestToParent = true;
+						}
+					}
+				}
+				if (isPrivileged && !isInCS) {
+					if (!this.queue.isEmpty()) {
+						Node nextInQueue = this.queue.poll();
+						nextInQueue.hasSentRequestToParent = false;
+						System.out.println("\nPopped Node " + nextInQueue.id + " from the queue of Node " + id);
+
+						if (nextInQueue.equals(this)) {
+							System.out.println("\nPooped node is same as the current privilledged node, going into CS");
+							isRequestingCS = false;
+							isInCS = true;
+							startCS();
+						}
+						else {
+							if (!this.queue.isEmpty()) {
+								nextInQueue.add(this);
+							}
+							System.out.println("\nPassing token from Node " + id + " to Node " + nextInQueue.id);
+	
+							nextInQueue.isPrivileged = true;
+							this.isPrivileged = false;
+							this.parent = nextInQueue;
+							nextInQueue.parent = null;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private void sendRequest(Node node) {
+		System.out.println("\nNode " + id + " has recieved request from Node " + node.id);
+
+		if (!this.queue.contains(node)) {
+			this.add(node);
+		}
+
+		if (!hasSentRequestToParent && this.parent != null) {
+			this.parent.sendRequest(this);
+			hasSentRequestToParent = true;
+		}
+	}
+
+	private void startCS() {
 		Random random = new Random(System.currentTimeMillis());
-		int randomDelay = random.nextInt(3,11);
-		
-		 System.out.println("\nNode " + id + " going into CS for " + randomDelay + "secons\n");
-		 
-		 Timer countdownTimer = new Timer(1000, new ActionListener() {
+		int randomDelay = random.nextInt(3, 11);
+
+		System.out.println("\nNode " + id + " going into CS for " + randomDelay + "s\n");
+
+		Timer countdownTimer = new Timer(1000, new ActionListener() {
 			int remainingTime = randomDelay;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				remainingTime --;
-				 
+				remainingTime--;
+
 				setText(id + "," + remainingTime);
 			}
-		 });
-		 
-		 Timer timer = new Timer(randomDelay*1000, new ActionListener() {
+		});
+
+		Timer timer = new Timer(randomDelay * 1000, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -92,88 +130,49 @@ public class Node extends JButton implements Runnable {
 				setText(id);
 				stopCS();
 			}
-			 
-		 });
-		 
-		 countdownTimer.setRepeats(true);
-		 timer.setRepeats(false);
-		 
-		 countdownTimer.start();
-		 timer.start();
+
+		});
+
+		countdownTimer.setRepeats(true);
+		timer.setRepeats(false);
+
+		countdownTimer.start();
+		timer.start();
 	}
 
-    private void stopCS() {
-    	System.out.println("\nNode " + id + " is done with CS.");
-        isInCS = false;
-        
-        afterCS(this);
-         
-    }
+	private void stopCS() {
+		System.out.println("\nNode " + id + " is done with CS.");
+		isInCS = false;
+	}
 
-    private void afterCS(Node node) {
-    	Node currentNode = node;
-        Queue<Node> tempQueue = node.queue;
-        Queue<Node> parentQueue = tempQueue;
-        
-		 while(!parentQueue.isEmpty()) {
-			tempQueue = parentQueue; 
-		    while(!tempQueue.element().isRequestingCS) {
-		        
-		        Node nextInQueue = tempQueue.poll();
-		
-		        System.out.println("Passing the token to the next node " + nextInQueue.id);
-		        nextInQueue.isPrivileged = true;
-		        currentNode.isPrivileged = false;
-		        
-		        tempQueue = nextInQueue.queue;
-		        
-		        currentNode = nextInQueue;
-		    }
-			
-			tempQueue.poll().run();
-			parentQueue = currentNode.parent.queue;
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Node))
+			return false;
+
+		Node oNode = (Node) obj;
+		return oNode.id.equalsIgnoreCase(this.id);
+	}
+
+	@Override
+	public String toString() {
+		String outString = "";
+
+		outString += "\n";
+		outString += "\nid: " + id;
+		outString += "\nisPrivilledged: " + isPrivileged;
+		outString += "\nQueue: {";
+
+		Object[] queuArr = this.queue.toArray();
+		for (int i = 0; i < queuArr.length; i++) {
+			Node queueNode = (Node) queuArr[i];
+			outString += "Node " + queueNode.id + ", ";
 		}
-         
-		checkEmptyQueue(currentNode);
-        
-    }
 
-    private void checkEmptyQueue(Node currentNode) {
-        while(currentNode.parent != null) {
-        	if(!currentNode.parent.queue.isEmpty()) {
-        		afterCS(currentNode.parent);
-        	}
-        	else {
-        		currentNode = currentNode.parent;
-        	}
-        }
-    }
+		outString += "}\n";
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null)    return false;
-        if (!(obj instanceof Node))   return false;
-
-        Node oNode = (Node) obj;
-        return oNode.id.equalsIgnoreCase(this.id);
-    }
-
-    @Override
-    public String toString() {
-        String outString = "";
-
-        outString += "\n";
-        outString += "\nid: " + id;
-        outString += "\nQueue: {";
-
-        Object[] queuArr = this.queue.toArray();
-        for (int i = 0; i < queuArr.length; i++) {
-            Node queueNode = (Node) queuArr[i];
-            outString += "Node " + queueNode.id + ", ";
-        }
-
-        outString += "}\n";
-
-        return outString;
-    }
+		return outString;
+	}
 }

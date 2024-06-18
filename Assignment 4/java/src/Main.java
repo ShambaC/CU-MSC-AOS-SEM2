@@ -1,12 +1,16 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,6 +22,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -75,6 +81,22 @@ class Container extends JPanel {
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
 
+            int x_pos = node.getLocation().x + 90;
+            int y_pos = node.getLocation().y + 5;
+            int Rectheight = 30;
+            int Rectwidth = 20;
+
+            g.setFont(new Font("Bookman Old Style", Font.BOLD, 16));
+
+            Object[] queueArr = node.queue.toArray();
+
+            for (int j = 0; j < queueArr.length; j++) {
+                Node currNode = (Node) queueArr[j];
+                g.drawRect(x_pos, y_pos + 20, Rectwidth, Rectheight);
+                g.drawString(currNode.id, x_pos + 5, y_pos + Rectheight + 5);
+                x_pos += Rectwidth + 5;
+            }
+
             if (node.isRequestingCS) {
                 node.setBackground(buttonBgRqst);
             }
@@ -92,13 +114,35 @@ class Container extends JPanel {
             if (node.parent != null) {
                 Point p2 = node.parent.getLocation();
 
-                if (p2.y < p1.y) {
-                    g.drawLine(p1.x + width/2, p1.y, p2.x + width/2, p2.y + height + 2);
-                    g.fillOval(p2.x + width/2, p2.y + height + 2, 10, 10);
+                try {
+                    BufferedImage arrowHead = ImageIO.read(getClass().getResource("/images/arrowHead.png"));
+
+                    double slope = (p2.y - p1.y) / (p2.x - p1.x);
+                    double theta = Math.toRadians(Math.abs(Math.atan(slope)));
+
+                    AffineTransform at = new AffineTransform();
+
+                    Graphics2D g2d = (Graphics2D) g;
+
+                    if (p2.y < p1.y) {
+                        g.drawLine(p1.x + width/2, p1.y, p2.x + width/2, p2.y + height + 2);
+                        at.translate(p2.x + width/2, p2.y + height + 2);
+                        at.rotate(theta);
+                        at.translate(-arrowHead.getWidth(this) / 2, -arrowHead.getHeight(this) / 2);
+                        g2d.drawImage(arrowHead, at, null);
+                        //g.drawImage(arrowHead, p2.x + width/2, p2.y + height + 2, 10, 10, null);
+                    }
+                    else {
+                        g.drawLine(p1.x + width/2, p1.y + height, p2.x + width/2, p2.y - 12);
+                        at.translate(p2.x + width/2, p2.y - 12);
+                        at.rotate(theta);
+                        at.translate(-arrowHead.getWidth(this) / 2, -arrowHead.getHeight(this) / 2);
+                        g2d.drawImage(arrowHead, at, null);
+                        //g.drawImage(arrowHead, p2.x + width/2, p2.y - 12, 10, 10, null);
+                    }
                 }
-                else {
-                    g.drawLine(p1.x + width/2, p1.y + height, p2.x + width/2, p2.y - 2);
-                    g.fillOval(p2.x + width/2, p2.y - 2, 10, 10);
+                catch (IOException err) {
+                    err.printStackTrace();
                 }
             }
         }
@@ -152,6 +196,7 @@ public class Main extends JFrame {
 
                     node1.setSize(50, 50);
                     node1.setBorder(new RoundedBorder(20));
+                    node1.setFont(new Font("Bookman Old Style", Font.BOLD, 16));
                     node1.setContentAreaFilled(false);
                     node1.setOpaque(true);
                     node1.setBackground(buttonBgIdle);
@@ -159,6 +204,7 @@ public class Main extends JFrame {
 
                     node2.setSize(50, 50);
                     node2.setBorder(new RoundedBorder(20));
+                    node2.setFont(new Font("Bookman Old Style", Font.BOLD, 16));
                     node2.setContentAreaFilled(false);
                     node2.setOpaque(true);
                     node2.setBackground(buttonBgIdle);
@@ -262,6 +308,7 @@ public class Main extends JFrame {
             for (int j = 0; j < levelList.size(); j++) {
                 Node node = levelList.get(j);
                 node.setLocation(x, y);
+                node.setBounds(x, y, 80, 50);
                 x += hGap;
             }
 
