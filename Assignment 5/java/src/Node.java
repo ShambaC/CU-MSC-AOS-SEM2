@@ -32,7 +32,7 @@ public class Node implements Runnable {
                             int pull = random.nextInt(2);
                             if (pull == 1) {
                                 messageCounter++;
-                                Message message = new Message(id + "A", MessageType.Normal, this);
+                                Message message = new Message(messageCounter + id, MessageType.Normal, this);
                                 channel.add(message);
                             }
                         }
