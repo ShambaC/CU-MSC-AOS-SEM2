@@ -21,7 +21,9 @@ public class Main {
     private void init() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+        }
+        catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
 
@@ -58,8 +60,14 @@ public class Main {
                     }
 
                     Channel channel = new Channel(nodeA, nodeB);
-                    nodeA.channels.add(channel);
+                    nodeA.outgoingChannels.add(channel);
+                    nodeB.incomingChannels.add(channel);
                 }
+
+                // --------GRAPH DONE ---------------
+
+                Node startNode = ParseGraph.findStarter(graph);
+
             }
             catch (IOException err) {
                 err.printStackTrace();
