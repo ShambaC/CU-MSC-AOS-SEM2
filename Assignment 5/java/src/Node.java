@@ -2,13 +2,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Node implements Runnable {
+import javax.swing.JButton;
+
+public class Node extends JButton implements Runnable {
 
     public String id;
     public List<Channel> incomingChannels = new ArrayList<>();
     public List<Channel> outgoingChannels = new ArrayList<>();
 
     public boolean isStateRecorded = false;
+    public boolean visited = false;
 
     private List<Message> incomingMessages = new ArrayList<>();
     private List<Message> outgoingMessages = new ArrayList<>();
@@ -16,6 +19,8 @@ public class Node implements Runnable {
     private int messageCounter = 0;
 
     public Node(String id) {
+        super(id);
+
         this.id = id;
     }
 
@@ -76,7 +81,7 @@ public class Node implements Runnable {
                                 }
                                 else {
                                     channel.state.clear();
-                                    channel.state.addAll(channel);
+                                    channel.state.addAll(incomingMessages);
                                 }
                             }
                         }

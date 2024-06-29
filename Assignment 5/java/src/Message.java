@@ -9,6 +9,7 @@ public class Message {
     public String messageID;
 
     public int timer = 3;
+    public int timerCounter = timer;
 
     public Message(String messageID, MessageType type, Node source) {
         this.messageID = messageID;
