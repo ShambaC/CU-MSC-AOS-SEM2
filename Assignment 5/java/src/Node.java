@@ -64,7 +64,7 @@ public class Node extends JButton implements Runnable {
                     for (int i = 0; i < outgoingChannels.size(); i++) {
                         Channel channel = outgoingChannels.get(i);
 
-                        int pull = random.nextInt(2);
+                        int pull = random.nextInt(3);
                         if (pull == 1) {
                             messageCounter++;
                             Message message = new Message(messageCounter + id, MessageType.Normal, this);

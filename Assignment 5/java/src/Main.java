@@ -128,12 +128,22 @@ class Container extends JPanel {
                     }
 
                     if (m.timerCounter == 2) {
-                        g.fillRect(node.getX() + 25, node.getY() - 25, 40, 30);
+                        if(m.type == MessageType.Normal) {
+                            g.fillRect(node.getX() + 25, node.getY() - 25, 40, 30);
+                        }
+                        else {
+                            g.fillOval(node.getX() + 25, node.getY() - 25, 40, 30);
+                        }
                         g.setColor(Color.WHITE);
                         g.drawString(m.messageID, node.getX() + 30, node.getY() - 10);
                     }
                     else if (m.timerCounter == 1) {
-                        g.fillRect((node.getX() + nodeB.getX()) / 2, (node.getY() + nodeB.getY()) / 2, 40, 30);
+                        if(m.type == MessageType.Normal) {
+                            g.fillRect((node.getX() + nodeB.getX()) / 2, (node.getY() + nodeB.getY()) / 2, 40, 30);
+                        }
+                        else {
+                            g.fillOval((node.getX() + nodeB.getX()) / 2, (node.getY() + nodeB.getY()) / 2, 40, 30);
+                        }                        
                         g.setColor(Color.WHITE);
                         g.drawString(m.messageID, ((node.getX() + nodeB.getX()) / 2) + 5, ((node.getY() + nodeB.getY()) / 2) + 15);
                     }
@@ -148,7 +158,6 @@ class Container extends JPanel {
 public class Main extends JFrame {
 
     private List<Node> graph = new ArrayList<>();
-    private int size;
 
     private Container container = new Container();
 
@@ -184,9 +193,7 @@ public class Main extends JFrame {
                 String content = new String(Files.readAllBytes(fc.getSelectedFile().toPath()));
                 String[] lines = content.split("\\r\\n");
 
-                size = Integer.parseInt(lines[0]);
-
-                for (int i = 1; i < lines.length; i++) {
+                for (int i = 0; i < lines.length; i++) {
                     if (lines[i].isBlank()) continue;
 
                     String[] nodeIDs = lines[i].split(" ");
@@ -335,6 +342,7 @@ public class Main extends JFrame {
                     for (Message m : ch.state) {
                         channelData.append(m.messageID).append(", ");
                     }
+                    channelData.append("]");
                 }
             }
 
