@@ -107,9 +107,33 @@ class Container extends JPanel {
             for (int j = 0; j < node.outgoingChannels.size(); j++) {
                 Channel channel = node.outgoingChannels.get(j);
 
+                Node nodeB = channel.nodeB;
+
+                g.setFont(new Font("Bookman Old Style", Font.BOLD, 16));
+
                 for (Message m : channel) {
-                    
+                    m.timerCounter--;
+
+                    if (m.type == MessageType.Normal) {
+                        g.setColor(channel.channelColor);
+                    }
+                    else {
+                        g.setColor(Color.RED);
+                    }
+
+                    if (m.timerCounter == 2) {
+                        g.fillRect(node.getX() + 25, node.getY() - 25, 40, 30);
+                        g.setColor(Color.WHITE);
+                        g.drawString(m.messageID, node.getX() + 30, node.getY() - 10);
+                    }
+                    else if (m.timerCounter == 1) {
+                        g.fillRect((node.getX() + nodeB.getX()) / 2, (node.getY() + nodeB.getY()) / 2, 40, 30);
+                        g.setColor(Color.WHITE);
+                        g.drawString(m.messageID, ((node.getX() + nodeB.getX()) / 2) + 5, ((node.getY() + nodeB.getY()) / 2) + 15);
+                    }
                 }
+
+                g.setColor(Color.BLACK);
             }
         }
     }
@@ -226,6 +250,11 @@ public class Main extends JFrame {
                 System.out.println("Selected starter node : Node " + startNode.id);
 
                 add(container, BorderLayout.CENTER);
+
+                for (int j = 0; j < graph.size(); j++) {
+                    Thread t = new Thread(graph.get(j));
+                    t.start();
+                }
 
             }
             catch (IOException err) {
