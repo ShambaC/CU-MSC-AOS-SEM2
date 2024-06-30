@@ -5,17 +5,38 @@ import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 
+/**
+ * This class represents a Node in a distributed system
+ */
 public class Node extends JButton implements Runnable {
 
+    /**
+     * ID of the node
+     */
     public String id;
+    /**
+     * Incoming edges
+     */
     public List<Channel> incomingChannels = new ArrayList<>();
+    /**
+     * Outgoing edges
+     */
     public List<Channel> outgoingChannels = new ArrayList<>();
 
     public boolean isStateRecorded = false;
     public boolean visited = false;
 
+    /**
+     * Incoming messages since the last time this node received a marker message
+     */
     public List<Message> incomingMessages = new ArrayList<>();
+    /**
+     * Outgoing message over lifetime of one recording
+     */
     public List<Message> outgoingMessages = new ArrayList<>();
+    /**
+     * Incoming messages recorded the first time receiving a marker message
+     */
     public List<Message> recordedMessages = new ArrayList<>();
     private int messageCounter = 0;
 
@@ -25,6 +46,11 @@ public class Node extends JButton implements Runnable {
         this.id = id;
     }
 
+    /**
+     * This method starts the state recording algorithm.
+     * <p>
+     * Only to be called by the starter node.
+     */
     public void startRecording() {
         isStateRecorded = true;
 
@@ -54,6 +80,7 @@ public class Node extends JButton implements Runnable {
 
         while (true) {
             synchronized (this) {
+                // Perform all operations at a gap of 1s
                 try {
                     Thread.sleep(1000);
                 }
@@ -61,10 +88,12 @@ public class Node extends JButton implements Runnable {
                     e.printStackTrace();
                 }
 
+                // If state isnt recorded yet, then the ndoe can send messages to otehr ndoes
                 if (!isStateRecorded) {
                     for (int i = 0; i < outgoingChannels.size(); i++) {
                         Channel channel = outgoingChannels.get(i);
 
+                        // A 1/3 random chance on when to send a message
                         int pull = random.nextInt(3);
                         if (pull == 1) {
                             messageCounter++;
@@ -79,12 +108,14 @@ public class Node extends JButton implements Runnable {
                     }
                 }
 
+                // Go through incoming channels to get all messages
                 for (int i = 0; i < incomingChannels.size(); i++) {
                     Channel channel = incomingChannels.get(i);
 
                     if (!channel.isEmpty()) {
                         Message front = channel.element();
 
+                        // It takes 3 seconds for a message to reach its destination.
                         if (front.timer == 0) {
                             channel.poll();
 
@@ -96,6 +127,7 @@ public class Node extends JButton implements Runnable {
                                 System.out.println(logBuffer.toString());
                             }
                             else {
+                                // if receiving marker for the first time
                                 if (!isStateRecorded) {
                                     isStateRecorded = true;
 
@@ -108,10 +140,14 @@ public class Node extends JButton implements Runnable {
                                     System.out.println(logBuffer.toString());
                                     logBuffer.setLength(0);
 
+                                    // save all incoming messages
                                     recordedMessages.addAll(incomingMessages);
+                                    // Clear current incoming list
                                     incomingMessages.clear();
+                                    // Set the state of the channel as empty
                                     channel.state.clear();
                                     
+                                    // Send marker to all other nodes
                                     for (int j = 0; j < outgoingChannels.size(); j++) {
                                         Channel outChannel = outgoingChannels.get(j);
 
@@ -124,6 +160,8 @@ public class Node extends JButton implements Runnable {
                                     }
                                 }
                                 else {
+                                    // Clear and add appropriate messages to the channel.
+                                    
                                     channel.state.clear();
                                     channel.state.addAll(incomingMessages.stream().filter(message -> message.source.id.equalsIgnoreCase(channel.nodeA.id)).collect(Collectors.toList()));
 

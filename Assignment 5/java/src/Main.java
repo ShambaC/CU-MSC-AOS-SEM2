@@ -57,7 +57,13 @@ class RoundedBorder implements Border{
     }
 }
 
+/**
+ * Custom container for nodes which also draws the edges and messages
+ */
 class Container extends JPanel {
+    /**
+     * The node graph containing all the nodes
+     */
     private List<Node> graph = new ArrayList<>();
 
     public Container() {
@@ -76,11 +82,13 @@ class Container extends JPanel {
         for (int i = 0; i < graph.size(); i++) {
             Node node = graph.get(i);
 
+            // Set color of the node to red if its state is already recorded
             if (node.isStateRecorded) {
                 node.setBackground(new Color(255, 0, 0));
                 node.setForeground(new Color(255, 255, 255));
             }
 
+            // Iterate through each out going edge
             for (int j = 0; j < node.outgoingChannels.size(); j++) {
                 Node toNode = node.outgoingChannels.get(j).nodeB;
 
@@ -88,6 +96,7 @@ class Container extends JPanel {
                 g2D.setPaint(node.outgoingChannels.get(j).channelColor);
                 g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+                // Control point coords for Bezier curve
                 int middleControlPointX = 0;
                 int middleControlPointY = Math.abs(toNode.getY() - node.getY() / 2);
 
@@ -101,11 +110,15 @@ class Container extends JPanel {
 
                 Path2D.Double path = new Path2D.Double();
 
+                // Create the curved line
                 path.moveTo(node.getX(), node.getY());
                 path.curveTo(node.getX(), node.getY(), middleControlPointX, middleControlPointY, toNode.getX() + toNode.getWidth(), toNode.getY());
+                // Set stroke to make the line thicker
                 g2D.setStroke(new BasicStroke(3));
+                // Draw the curve
                 g2D.draw(path);
 
+                // Add a circle at the end of the curve to indicate direction
                 g.setColor(Color.RED);
                 g.fillOval(toNode.getX() + toNode.getWidth(), toNode.getY(), 7, 7);
                 g.setColor(Color.BLACK);
@@ -123,16 +136,20 @@ class Container extends JPanel {
 
                 g.setFont(new Font("Bookman Old Style", Font.BOLD, 16));
 
+                // Iterate through messages in a chanel
                 for (Message m : channel) {
                     m.timerCounter--;
 
+                    // Normal message are coordinated with their respective channel color
                     if (m.type == MessageType.Normal) {
                         g.setColor(channel.channelColor);
                     }
+                    // Marker messages are red
                     else {
                         g.setColor(Color.RED);
                     }
 
+                    // Square messages are normal and marker messages are circle
                     if (m.timerCounter == 2) {
                         if(m.type == MessageType.Normal) {
                             g.fillRect(node.getX() + 25, node.getY() - 25, 40, 30);
@@ -161,6 +178,9 @@ class Container extends JPanel {
     }
 }
 
+/**
+ * Main class for GUI and running
+ */
 public class Main extends JFrame {
 
     private List<Node> graph = new ArrayList<>();
@@ -176,6 +196,7 @@ public class Main extends JFrame {
     }
 
     private void init() {
+        // Set UI theme as the system theme
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
@@ -189,6 +210,9 @@ public class Main extends JFrame {
 
         container.setLayout(null);
 
+        JOptionPane.showMessageDialog(this, "The input file must be in the following format:\nOne edge in each line in the format of <from Node><space><to node>\nBlank lines and lines starting with '#' are ignored", "Input format", JOptionPane.INFORMATION_MESSAGE);
+
+        // Take input for file
         JFileChooser fc = new JFileChooser("./");
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
         fc.setFileFilter(filter);
@@ -200,7 +224,7 @@ public class Main extends JFrame {
                 String[] lines = content.split("\\r\\n");
 
                 for (int i = 0; i < lines.length; i++) {
-                    if (lines[i].isBlank()) continue;
+                    if (lines[i].isBlank() || lines[i].startsWith("#")) continue;
 
                     String[] nodeIDs = lines[i].split(" ");
 
@@ -265,16 +289,19 @@ public class Main extends JFrame {
 
                 container.setList(graph);
 
+                // Find the eligible starter node
                 Node startNode = ParseGraph.findStarter(graph);
                 System.out.println("Selected starter node : Node " + startNode.id);
 
                 add(container, BorderLayout.CENTER);
 
+                // Start each node
                 for (int j = 0; j < graph.size(); j++) {
                     Thread t = new Thread(graph.get(j));
                     t.start();
                 }
 
+                // Start state recording from the eligible node after 3 seconds
                 Timer startTimer = new Timer(3000, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -294,9 +321,16 @@ public class Main extends JFrame {
         }
     }
 
+    /**
+     * Method to see if state recording is complete
+     */
     public void checkState() {
+        /**
+         * Flag variable
+         */
         boolean isAllStateRecorded = true;
 
+        // Iterate through each node and check if their state was recorded
         for (int i = 0; i < graph.size(); i++) {
             Node node = graph.get(i);
 
@@ -308,6 +342,7 @@ public class Main extends JFrame {
             for (int j = 0; j < node.outgoingChannels.size(); j++) {
                 Channel channel = node.outgoingChannels.get(j);
 
+                // Iterate through all messages in a chanel to see if there are any marker messages
                 for (Message m : channel) {
                     if (m.type == MessageType.Marker) {
                         isAllStateRecorded = false;
@@ -317,6 +352,7 @@ public class Main extends JFrame {
             }
         }
 
+        // If state recording is done, store all the recorded information in a file and exit the program
         if (isAllStateRecorded) {
             StringBuffer nodeData = new StringBuffer();
             StringBuffer channelData = new StringBuffer();

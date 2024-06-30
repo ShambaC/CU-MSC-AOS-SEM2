@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
+/**
+ * The FIFO channel for sending and receiving messages
+ */
 public class Channel extends ArrayDeque<Message> {
     
     public Node nodeA;
@@ -20,6 +23,8 @@ public class Channel extends ArrayDeque<Message> {
         this.nodeB = nodeB;
 
         Random random = new Random();
+
+        // Assign a random color to the channel
 
         float r = random.nextFloat();
         float g = random.nextFloat() / 1.5f;
