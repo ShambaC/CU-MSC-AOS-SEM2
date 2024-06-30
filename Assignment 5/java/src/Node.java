@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 
@@ -124,7 +125,7 @@ public class Node extends JButton implements Runnable {
                                 }
                                 else {
                                     channel.state.clear();
-                                    channel.state.addAll(incomingMessages);
+                                    channel.state.addAll(incomingMessages.stream().filter(message -> message.source.id.equalsIgnoreCase(channel.nodeA.id)).collect(Collectors.toList()));
 
                                     StringBuffer logBuffer = new StringBuffer();
                                     logBuffer.append("\nNode ").append(id).append(" received a marker message from Node ").append(front.source.id);
