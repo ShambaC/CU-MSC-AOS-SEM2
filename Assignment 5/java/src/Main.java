@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.UIManager;
@@ -292,7 +293,7 @@ public class Main extends JFrame {
             }
 
             for (int j = 0; j < node.outgoingChannels.size(); j++) {
-                Channel channel = node.outgoingChannels.get(i);
+                Channel channel = node.outgoingChannels.get(j);
 
                 for (Message m : channel) {
                     if (m.type == MessageType.Marker) {
@@ -328,7 +329,7 @@ public class Main extends JFrame {
                 nodeData.append("]");
 
                 for (Channel ch : node.outgoingChannels) {
-                    channelData.append("\n\nChannel from Node ").append(ch.nodeA).append(" to Node ").append(ch.nodeB).append(": ");
+                    channelData.append("\n\nChannel from Node ").append(ch.nodeA.id).append(" to Node ").append(ch.nodeB.id).append(": ");
                     channelData.append("\nRecorded State: [");
 
                     for (Message m : ch.state) {
@@ -347,6 +348,9 @@ public class Main extends JFrame {
             catch (IOException e) {
                 e.printStackTrace();
             }
+
+            JOptionPane.showMessageDialog(this, "All states recorded and saved in a file.", "Finish Notice", JOptionPane.INFORMATION_MESSAGE);
+            System.exit(0);
         }
     }
 

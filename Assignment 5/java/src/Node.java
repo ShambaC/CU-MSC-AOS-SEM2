@@ -29,6 +29,11 @@ public class Node extends JButton implements Runnable {
 
         recordedMessages.addAll(incomingMessages);
         incomingMessages.clear();
+
+        StringBuffer logBuffer = new StringBuffer();
+        logBuffer.append("\nRecording the state of Node ").append(id);
+        System.out.println(logBuffer.toString());
+        logBuffer.setLength(0);
                                     
         for (int j = 0; j < outgoingChannels.size(); j++) {
             Channel outChannel = outgoingChannels.get(j);
@@ -36,6 +41,9 @@ public class Node extends JButton implements Runnable {
             messageCounter++;
             Message message = new Message(messageCounter + id, MessageType.Marker, this);
             outChannel.add(message);
+
+            logBuffer.append("\nNode ").append(id).append(" sending marker to Node ").append(outChannel.nodeB.id);
+            System.out.println(logBuffer.toString());
         }
     }
 
@@ -64,7 +72,7 @@ public class Node extends JButton implements Runnable {
                             outgoingMessages.add(message);
 
                             StringBuffer logBuffer = new StringBuffer();
-                            logBuffer.append("\nNode ").append(id).append("sent a normal message ").append(message.messageID).append(" to Node ").append(channel.nodeB.id);
+                            logBuffer.append("\nNode ").append(id).append(" sent a normal message ").append(message.messageID).append(" to Node ").append(channel.nodeB.id);
                             System.out.println(logBuffer.toString());
                         }
                     }
@@ -110,7 +118,7 @@ public class Node extends JButton implements Runnable {
                                         Message message = new Message(messageCounter + id, MessageType.Marker, this);
                                         outChannel.add(message);
 
-                                        logBuffer.append("\nNode ").append(id).append(" sending marker to Node ").append(outChannel.nodeB);
+                                        logBuffer.append("\nNode ").append(id).append(" sending marker to Node ").append(outChannel.nodeB.id);
                                         System.out.println(logBuffer.toString());
                                     }
                                 }
