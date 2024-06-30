@@ -13,15 +13,30 @@ public class Node extends JButton implements Runnable {
     public boolean isStateRecorded = false;
     public boolean visited = false;
 
-    private List<Message> incomingMessages = new ArrayList<>();
-    private List<Message> outgoingMessages = new ArrayList<>();
-    private List<Message> recordedMessages = new ArrayList<>();
+    public List<Message> incomingMessages = new ArrayList<>();
+    public List<Message> outgoingMessages = new ArrayList<>();
+    public List<Message> recordedMessages = new ArrayList<>();
     private int messageCounter = 0;
 
     public Node(String id) {
         super(id);
 
         this.id = id;
+    }
+
+    public void startRecording() {
+        isStateRecorded = true;
+
+        recordedMessages.addAll(incomingMessages);
+        incomingMessages.clear();
+                                    
+        for (int j = 0; j < outgoingChannels.size(); j++) {
+            Channel outChannel = outgoingChannels.get(j);
+
+            messageCounter++;
+            Message message = new Message(messageCounter + id, MessageType.Marker, this);
+            outChannel.add(message);
+        }
     }
 
     @Override
@@ -47,6 +62,10 @@ public class Node extends JButton implements Runnable {
                             Message message = new Message(messageCounter + id, MessageType.Normal, this);
                             channel.add(message);
                             outgoingMessages.add(message);
+
+                            StringBuffer logBuffer = new StringBuffer();
+                            logBuffer.append("\nNode ").append(id).append("sent a normal message ").append(message.messageID).append(" to Node ").append(channel.nodeB.id);
+                            System.out.println(logBuffer.toString());
                         }
                     }
                 }
@@ -62,10 +81,23 @@ public class Node extends JButton implements Runnable {
 
                             if (front.type == MessageType.Normal) {
                                 incomingMessages.add(front);
+
+                                StringBuffer logBuffer = new StringBuffer();
+                                logBuffer.append("\nNode ").append(id).append(" received a normal message ").append(front.messageID).append(" from Node ").append(front.source.id);
+                                System.out.println(logBuffer.toString());
                             }
                             else {
                                 if (!isStateRecorded) {
                                     isStateRecorded = true;
+
+                                    StringBuffer logBuffer = new StringBuffer();
+                                    logBuffer.append("\nNode ").append(id).append(" received a marker message from Node ").append(front.source.id);
+                                    System.out.println(logBuffer.toString());
+                                    logBuffer.setLength(0);
+
+                                    logBuffer.append("\nRecording the state of Node ").append(id);
+                                    System.out.println(logBuffer.toString());
+                                    logBuffer.setLength(0);
 
                                     recordedMessages.addAll(incomingMessages);
                                     incomingMessages.clear();
@@ -77,11 +109,19 @@ public class Node extends JButton implements Runnable {
                                         messageCounter++;
                                         Message message = new Message(messageCounter + id, MessageType.Marker, this);
                                         outChannel.add(message);
+
+                                        logBuffer.append("\nNode ").append(id).append(" sending marker to Node ").append(outChannel.nodeB);
+                                        System.out.println(logBuffer.toString());
                                     }
                                 }
                                 else {
                                     channel.state.clear();
                                     channel.state.addAll(incomingMessages);
+
+                                    StringBuffer logBuffer = new StringBuffer();
+                                    logBuffer.append("\nNode ").append(id).append(" received a marker message from Node ").append(front.source.id);
+                                    logBuffer.append("\n^== This node is already recorded, recording channel state");
+                                    System.out.println(logBuffer.toString());
                                 }
                             }
                         }

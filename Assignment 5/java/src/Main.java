@@ -7,10 +7,14 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Path2D;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 
 import java.util.ArrayList;
@@ -75,6 +79,7 @@ class Container extends JPanel {
 
                 Graphics2D g2D = (Graphics2D) g;
                 g2D.setPaint(node.outgoingChannels.get(j).channelColor);
+                g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 int middleControlPointX = 0;
                 int middleControlPointY = Math.abs(toNode.getY() - node.getY() / 2);
@@ -256,6 +261,15 @@ public class Main extends JFrame {
                     t.start();
                 }
 
+                Timer startTimer = new Timer(3000, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        startNode.startRecording();
+                    }
+                });
+                startTimer.setRepeats(false);
+                startTimer.start();
+
             }
             catch (IOException err) {
                 err.printStackTrace();
@@ -266,7 +280,86 @@ public class Main extends JFrame {
         }
     }
 
+    public void checkState() {
+        boolean isAllStateRecorded = true;
+
+        for (int i = 0; i < graph.size(); i++) {
+            Node node = graph.get(i);
+
+            if (!node.isStateRecorded) {
+                isAllStateRecorded = false;
+                break;
+            }
+
+            for (int j = 0; j < node.outgoingChannels.size(); j++) {
+                Channel channel = node.outgoingChannels.get(i);
+
+                for (Message m : channel) {
+                    if (m.type == MessageType.Marker) {
+                        isAllStateRecorded = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (isAllStateRecorded) {
+            StringBuffer nodeData = new StringBuffer();
+            StringBuffer channelData = new StringBuffer();
+
+            nodeData.append("----NODES----");
+            channelData.append("\n\n----CHANNELS----");
+
+            for (int i = 0; i < graph.size(); i++) {
+                Node node = graph.get(i);
+
+                nodeData.append("\n\nNode: ").append(node.id);
+
+                nodeData.append("\nIncoming messages: [");
+                for (Message m : node.recordedMessages) {
+                    nodeData.append(m.messageID).append(", ");
+                }
+                nodeData.append("]");
+
+                nodeData.append("\nOutgoing messages: [");
+                for (Message m : node.outgoingMessages) {
+                    nodeData.append(m.messageID).append(", ");
+                }
+                nodeData.append("]");
+
+                for (Channel ch : node.outgoingChannels) {
+                    channelData.append("\n\nChannel from Node ").append(ch.nodeA).append(" to Node ").append(ch.nodeB).append(": ");
+                    channelData.append("\nRecorded State: [");
+
+                    for (Message m : ch.state) {
+                        channelData.append(m.messageID).append(", ");
+                    }
+                }
+            }
+
+            File stateFile = new File("savedState.txt");
+            StringBuffer savedState = new StringBuffer();
+            savedState.append(nodeData.toString());
+            savedState.append(channelData.toString());
+            try {
+                Files.write(stateFile.toPath(), savedState.toString().getBytes());
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void main(String[] args) {
+        // Log all the output information in a file
+        try {
+            PrintStream fileStream = new PrintStream("outputLog.txt");
+            System.setOut(fileStream);
+        }
+        catch (FileNotFoundException err) {
+            err.printStackTrace();
+        }
+
         Main UI = new Main();
         UI.setVisible(true);
 
@@ -275,6 +368,7 @@ public class Main extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UI.repaint();
+                UI.checkState();
             }
         });
 
