@@ -11,6 +11,7 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Path2D;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -74,6 +75,11 @@ class Container extends JPanel {
         // Edge drawing
         for (int i = 0; i < graph.size(); i++) {
             Node node = graph.get(i);
+
+            if (node.isStateRecorded) {
+                node.setBackground(new Color(255, 0, 0));
+                node.setForeground(new Color(255, 255, 255));
+            }
 
             for (int j = 0; j < node.outgoingChannels.size(); j++) {
                 Node toNode = node.outgoingChannels.get(j).nodeB;
