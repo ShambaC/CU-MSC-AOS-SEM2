@@ -1,0 +1,60 @@
+Selected starter node : Node A
+
+Node B sent a normal message 1B to Node D
+
+Node C sent a normal message 1C to Node D
+
+Node A sent a normal message 1A to Node B
+
+Recording the state of Node A
+
+Node A sending marker to Node B
+
+Node A sending marker to Node B
+Node A sending marker to Node C
+
+Node D sent a normal message 1D to Node B
+
+Node B received a normal message 1A from Node A
+
+Node D received a normal message 1C from Node C
+
+Node D received a normal message 1B from Node B
+
+Node C received a marker message from Node A
+
+Recording the state of Node C
+
+Node B received a marker message from Node A
+
+Recording the state of Node B
+
+Node B sending marker to Node D
+
+Node C sending marker to Node D
+
+Node B sending marker to Node D
+Node B sending marker to Node A
+
+Node B received a normal message 1D from Node D
+
+Node C sending marker to Node D
+Node C sending marker to Node B
+
+Node D received a marker message from Node C
+
+Recording the state of Node D
+
+Node D sending marker to Node B
+
+Node D received a marker message from Node B
+^== This node is already recorded, recording channel state
+
+Node A received a marker message from Node B
+^== This node is already recorded, recording channel state
+
+Node B received a marker message from Node C
+^== This node is already recorded, recording channel state
+
+Node B received a marker message from Node D
+^== This node is already recorded, recording channel state

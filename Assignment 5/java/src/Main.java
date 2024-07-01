@@ -210,7 +210,7 @@ public class Main extends JFrame {
 
         container.setLayout(null);
 
-        JOptionPane.showMessageDialog(this, "The input file must be in the following format:\nOne edge in each line in the format of <from Node><space><to node>\nBlank lines and lines starting with '#' are ignored", "Input format", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "A node will turn from blue to red once its state is recorded.\nEvery edge has a random color and a message travelling through an edge wil have the same color.\nA rectangle message is normal and a red oval message is a marker message.\nThe input file must be in the following format:\nOne edge in each line in the format of <from Node><space><to node>\nBlank lines and lines starting with '#' are ignored", "Instructions", JOptionPane.INFORMATION_MESSAGE);
 
         // Take input for file
         JFileChooser fc = new JFileChooser("./");

@@ -1,0 +1,40 @@
+----NODES----
+
+Node: A
+Incoming messages: []
+Outgoing messages: [1A, ]
+
+Node: B
+Incoming messages: [1A, ]
+Outgoing messages: [1B, ]
+
+Node: C
+Incoming messages: []
+Outgoing messages: [1C, ]
+
+Node: D
+Incoming messages: [1C, 1B, ]
+Outgoing messages: [1D, ]
+
+----CHANNELS----
+
+Channel from Node A to Node B: 
+Recorded State: []
+
+Channel from Node A to Node C: 
+Recorded State: []
+
+Channel from Node B to Node D: 
+Recorded State: []
+
+Channel from Node B to Node A: 
+Recorded State: []
+
+Channel from Node C to Node D: 
+Recorded State: []
+
+Channel from Node C to Node B: 
+Recorded State: []
+
+Channel from Node D to Node B: 
+Recorded State: [1D, ]
