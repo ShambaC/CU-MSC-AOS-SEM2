@@ -160,7 +160,7 @@ public class Node extends JButton implements Runnable {
                                     }
                                 }
                                 else {
-                                    // Clear and add appropriate messages to the channel.
+                                    // Clear and add appropriate messages to the channel state
                                     
                                     channel.state.clear();
                                     channel.state.addAll(incomingMessages.stream().filter(message -> message.source.id.equalsIgnoreCase(channel.nodeA.id)).collect(Collectors.toList()));
