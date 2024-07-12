@@ -27,7 +27,7 @@ public class Node extends JButton implements Runnable {
         while (true) {
             synchronized(this) {
                 if (!isInCS) {
-                    // TODO: Randomly decide if going into CS, if yes. Randomly decide if it depends on a node in CS, if yes then add that node to the connList
+                    // TODO: Randomly decide if going into CS, if yes. Randomly decide if it depends on a node, if yes then add that node to the connList
                     // TODO: while adding perform transmit, block, detect
                     // TODO: if results in deadlock, set the deadlock boolean
                 }
