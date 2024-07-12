@@ -35,12 +35,9 @@ class Container extends JPanel {
             Node node = nodeList.get(i);
             Point p1 = node.getLocation();
 
-            for(int j = 0; j < node.connList.size(); j++) {
-                Node toNode = node.connList.get(j);
-                Point p2 = toNode.getLocation();
+            Point p2 = node.connNode.getLocation();
 
-                // TODO: draw the edges here
-            }
+            //TODO: draw edges here
         }
     }
 }

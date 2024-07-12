@@ -13,7 +13,7 @@ public class Node extends JButton implements Runnable {
     public boolean isInCS = false;
     public boolean isInDeadlock = false;
 
-    public List<Node> connList = new ArrayList<>();
+    public Node connNode;
 
     public Node(String id, int init) {
         super(init + " / " + init);
