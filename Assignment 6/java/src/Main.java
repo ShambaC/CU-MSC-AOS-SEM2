@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
@@ -32,9 +33,11 @@ class Container extends JPanel {
 
         for(int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
+            Point p1 = node.getLocation();
 
             for(int j = 0; j < node.connList.size(); j++) {
                 Node toNode = node.connList.get(j);
+                Point p2 = toNode.getLocation();
 
                 // TODO: draw the edges here
             }
