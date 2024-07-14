@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 class Container extends JPanel {
-    private List<Node> nodeList = new ArrayList<>();
+    static List<Node> nodeList = new ArrayList<>();
 
     public Container() {
         super();
@@ -35,7 +35,7 @@ class Container extends JPanel {
             Node node = nodeList.get(i);
             Point p1 = node.getLocation();
 
-            Point p2 = node.connNode.getLocation();
+            Point p2 = node.depending_nodes.get(i).getLocation();
 
             //TODO: draw edges here
         }
@@ -73,7 +73,7 @@ public class Main extends JFrame {
         double centerY = window.getWidth() / 2 - 20;    // Center y of the circle
 
         for (int i = 0; i < size; i++) {
-            Node node = new Node(Integer.toString(i), i);
+            Node node = new Node(Integer.toString(i), i, null);
 
             double angle = i * angleIncrement;
             int x = (int) (centerX + radius * Math.cos(angle) - 40); // 40 is half of the button width for centering
@@ -86,6 +86,8 @@ public class Main extends JFrame {
             nodeList.add(node);
             container.add(node);
         }
+        
+        
 
         add(container, BorderLayout.CENTER);
 
@@ -129,7 +131,7 @@ public class Main extends JFrame {
         timer.start();
     }
 
-    private void pauseApp() {
+    void pauseApp() {
         try {
             Thread.sleep(Long.MAX_VALUE);
             timer.stop();
