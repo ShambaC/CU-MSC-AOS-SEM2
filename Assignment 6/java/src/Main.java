@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 class Container extends JPanel {
-    static List<Node> nodeList = new ArrayList<>();
+    private List<Node> nodeList = new ArrayList<>();
 
     public Container() {
         super();
@@ -35,9 +35,19 @@ class Container extends JPanel {
             Node node = nodeList.get(i);
             Point p1 = node.getLocation();
 
-            Point p2 = node.depending_nodes.get(i).getLocation();
+            for (int j = 0; j < node.blockingNodes.size(); j++) {
+                Point p2 = node.blockingNodes.get(j).getLocation();
 
-            //TODO: draw edges here
+                // If point 1 is lower
+                if (p1.y > p2.y) {
+                    g.drawLine(p1.x + 60, p1.y, p2.x + 60, p2.y + 50);
+                    g.fillOval(p2.x + 60, p2.y + 60, 7, 7);
+                }
+                else {
+                    g.drawLine(p1.x + 60, p1.y + 50, p2.x + 60, p2.y);
+                    g.fillOval(p2.x + 60, p2.y - 10, 7, 7);
+                }
+            }
         }
     }
 }
@@ -46,7 +56,6 @@ public class Main extends JFrame {
     private int size;
 
     private List<Node> nodeList = new ArrayList<>();
-    private List<Thread> nodeThreadList = new ArrayList<>();
 
     private Timer timer;
 
@@ -73,7 +82,7 @@ public class Main extends JFrame {
         double centerY = window.getWidth() / 2 - 20;    // Center y of the circle
 
         for (int i = 0; i < size; i++) {
-            Node node = new Node(Integer.toString(i), i, null);
+            Node node = new Node(Integer.toString(i), i);
 
             double angle = i * angleIncrement;
             int x = (int) (centerX + radius * Math.cos(angle) - 40); // 40 is half of the button width for centering
@@ -81,19 +90,20 @@ public class Main extends JFrame {
 
             node.setSize(50, 50);
             node.setFont(new Font("Bookman Old Style", Font.BOLD, 17));
-            node.setBounds(x, y, 100, 50);
+            node.setBounds(x, y, 120, 50);
             node.setBackground(Color.cyan);
             nodeList.add(node);
             container.add(node);
         }
         
-        
+        container.setList(nodeList);
 
         add(container, BorderLayout.CENTER);
 
         for (Node node : nodeList) {
+            node.nodeList = nodeList;
+
             Thread t = new Thread(node);
-            nodeThreadList.add(t);
 
             t.start();
         }
@@ -107,20 +117,23 @@ public class Main extends JFrame {
                 for (int i = 0; i < nodeList.size(); i++) {
                     Node node = nodeList.get(i);
 
+                    node.detect();
+
                     if (node.isInDeadlock) {
+                        container.repaint();
+                        container.revalidate();
                         flag = true;
                         break;
                     }
                 }
 
                 if (flag) {
-                    nodeThreadList.forEach(thread -> {
-                        try {
-                            thread.wait();
-                        } catch (InterruptedException e1) {
-                            e1.printStackTrace();
-                        }
-                    });
+
+                    for (int i = 0; i < nodeList.size(); i++) {
+                        Node node = nodeList.get(i);
+                        node.running = false;
+                        System.out.println("\nStopping Node " + node.id);
+                    }
 
                     pauseApp();
                 }
@@ -131,13 +144,8 @@ public class Main extends JFrame {
         timer.start();
     }
 
-    void pauseApp() {
-        try {
-            Thread.sleep(Long.MAX_VALUE);
-            timer.stop();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    private void pauseApp() {
+        timer.stop();
     }
 
     public static void main(String[] args) {
