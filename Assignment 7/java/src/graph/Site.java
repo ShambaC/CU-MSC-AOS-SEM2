@@ -44,4 +44,34 @@ public class Site {
     public Site(int siteID) {
         this.siteID = siteID;
     }
+
+    private void createRST() {
+
+        for (Resource resource : resourceList) {
+            resourceRow data = new resourceRow(resource.currentHeldNode, resource.waitingNodes);
+            RST.put(resource, data);
+        }
+    }
+
+    private void createPST() {
+        
+        for (Node node : nodeList) {
+            processRow data = new processRow(node.heldResources, node.requestedResources);
+            PST.put(node, data);
+        }
+    }
+
+    public void generateData() {
+        createPST();
+        createRST();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)    return false;
+        if (!(obj instanceof Site)) return false;
+
+        Site obj_t = (Site) obj;
+        return this.siteID == obj_t.siteID;
+    }
 }
