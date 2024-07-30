@@ -4,21 +4,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class 
+ * Class that represents a node or a process
  */
 public class Node implements Runnable {
     
     public int nodeID;
 
+    /**
+     * A list of all resources that this node is currently holding
+     */
     public List<Resource> heldResources = new ArrayList<>();
+    /**
+     * A list of all resources this node is currently requesting
+     */
     public List<Resource> requestedResources = new ArrayList<>();
 
+    /**
+     * A list of all globally available resources
+     */
     private List<Resource> globalResourceList = new ArrayList<>();
 
+    /**
+     * Constructor to initialise a node with an ID
+     * @param nodeID
+     */
     public Node(int nodeID) {
         this.nodeID = nodeID;
     }
 
+    /**
+     * A method to set the global resource list
+     * @param globalResourceList
+     */
     public void setResourceList(List<Resource> globalResourceList) {
         this.globalResourceList = globalResourceList;
     }

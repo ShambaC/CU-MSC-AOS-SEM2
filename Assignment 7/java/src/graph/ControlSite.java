@@ -57,7 +57,7 @@ class WaitForGraph {
 
 
     /**
-     * Method to get the keys or nodes in the graph as a Set<T>
+     * Method to get the keys or nodes in the graph as a Set
      * @return A node Set of the nodes in the graph
      */
     public Set<Node> keySet() {
