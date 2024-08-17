@@ -1,8 +1,12 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 public class Controller extends JLabel implements Runnable {
     
@@ -10,13 +14,16 @@ public class Controller extends JLabel implements Runnable {
     
     private List<Node> nodeList;
     private boolean isTerminated = false;
-    private static final float MIN_WEIGHT = 0.01f;
+    private JTextArea tArea;
 
-    public Controller() {
+    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+    public Controller(JTextArea tArea) {
         super("Controller, 1.0");
 
         this.weight = 1.0f;
         this.nodeList = new ArrayList<>();
+        this.tArea = tArea;
     }
 
     public void setNodeList(List<Node> nodeList) {
@@ -24,18 +31,25 @@ public class Controller extends JLabel implements Runnable {
     }
 
     public void sendMsg(Node target) {
-        Random random = new Random(System.currentTimeMillis());
-        float weightToSend = random.nextFloat(MIN_WEIGHT, this.weight);
+        float weightToSend = 0.9f;
 
         this.weight -= weightToSend;
+        updateLabel();
+
+        LocalDateTime now = LocalDateTime.now();
+        tArea.append("\n" + dtf.format(now) + " - Controller sending msg to Node " + target.id + " with weight " + weightToSend);
 
         target.receiveMsg(null, weightToSend);
     }
 
     public void returnWeight(Node sender, float weight) {
         this.weight += weight;
+        updateLabel();
 
-        if (weight == 1.0f) {
+        LocalDateTime now = LocalDateTime.now();
+        tArea.append("\n" + dtf.format(now) + " - Controller Received weight " + weight + " from Node " + sender.id);
+
+        if (this.weight == 1.0f) {
             isTerminated = true;
         }
     }
@@ -43,6 +57,7 @@ public class Controller extends JLabel implements Runnable {
     @Override
     public void run() {
         Random random = new Random();
+        boolean sendMessage = false;
 
         while(!isTerminated) {
             try {
@@ -50,16 +65,22 @@ public class Controller extends JLabel implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            updateLabel();
 
-            boolean sendMessage = random.nextBoolean();
-
-            if (sendMessage) {
+            if (!sendMessage) {
                 int choice = random.nextInt(0, nodeList.size());
                 Node targetNode = nodeList.get(choice);
                 sendMsg(targetNode);
+                sendMessage = true;
             }
+
+            if (isTerminated)   break;
         }
 
-        // TODO: Termination code here
+        JOptionPane.showMessageDialog(this, "The system has now terminated", "Information", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void updateLabel() {
+        setText("Controller" + ", " + this.weight);
     }
 }
