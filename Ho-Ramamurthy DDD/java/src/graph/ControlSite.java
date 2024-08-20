@@ -41,7 +41,9 @@ class WaitForGraph {
         }
 
         List<Node> children = adjList.get(node);
-        children.add(child);
+        if (child != null) {
+            children.add(child);
+        }
 
         adjList.put(node, children);
     }
@@ -94,25 +96,22 @@ class WaitForGraph {
      */
     private boolean hasCycleUtil(Node node, Map<Node, Boolean> visited, Map<Node, Boolean> recStack) {
         
-        if (recStack.get(node)) {
-            return true;
-        }
+        if (!visited.get(node)) {
+            // Mark the current node as visited and a part of the recursion stack
+            visited.put(node, true);
+            recStack.put(node, true);
 
-        if (visited.get(node)) {
-            return false;
-        }
+            List<Node> children = adjList.get(node);
 
-        // Mark the current node as visited and a part of the recursion stack
-        visited.put(node, true);
-        recStack.put(node, true);
+            if (children != null) {
+                for (Node child : children) {
 
-        List<Node> children = adjList.get(node);
-
-        if (children != null) {
-            for (Node child : children) {
-
-                if (hasCycleUtil(child, visited, recStack)) {
-                    return true;
+                    if (!visited.get(child) && hasCycleUtil(child, visited, recStack)) {
+                        return true;
+                    }
+                    else if (recStack.get(child)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -137,7 +136,7 @@ class WaitForGraph {
         }
 
         for (Node key : adjList.keySet()) {
-            if (hasCycleUtil(key, visited, recStack)) {
+            if (!visited.get(key) && hasCycleUtil(key, visited, recStack)) {
                 return true;
             }
         }
@@ -216,6 +215,7 @@ public class ControlSite {
             WaitForGraph localGraph = LWFGMap.get(site);
 
             for (Node node : localGraph.keySet()) {
+                GWFG.add(node, null);
                 List<Node> children = localGraph.get(node);
 
                 for (Node child : children) {

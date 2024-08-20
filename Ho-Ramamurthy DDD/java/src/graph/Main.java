@@ -34,7 +34,6 @@ public class Main {
 
 		for (int i = 1; i <= no_of_sites; i++) {
 			Site site = new Site(i);
-			siteList.add(site);
 
 			resource_list_len = random.nextInt(2, 4);
 			System.out.println("\nNumber of resources in Site " + i + ": " + resource_list_len);
@@ -49,6 +48,8 @@ public class Main {
 				Node node = new Node(j, i);
 				site.nodeList.add(node);
 			}
+			
+			siteList.add(site);
 		}
 		
 		ControlSite cs = new ControlSite(siteList);
@@ -67,9 +68,8 @@ public class Main {
 				boolean isDeadlock = cs.isInDeadlock();
 				System.out.println("Checking for deadlock. Deadlock detected: " + isDeadlock);
 
-				JOptionPane.showMessageDialog(null, "DeadLock", "Information", JOptionPane.INFORMATION_MESSAGE);
-
 				if (isDeadlock) {
+					JOptionPane.showMessageDialog(null, "DeadLock", "Information", JOptionPane.INFORMATION_MESSAGE);
 					System.exit(0);
 				}
 			}
