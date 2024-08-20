@@ -12,6 +12,7 @@ public class Resource {
      * The resources ID
      */
     public int resourceID;
+    public int siteID;
 
     /**
      * The node that is currently holding the process and blocking others from accessing this
@@ -26,8 +27,9 @@ public class Resource {
      * Constructor to initialise a resource with an ID
      * @param resourceID
      */
-    public Resource(int resourceID) {
+    public Resource(int resourceID, int siteID) {
         this.resourceID = resourceID;
+        this.siteID = siteID;
     }
 
     /**
@@ -56,6 +58,6 @@ public class Resource {
         if (!(obj instanceof Resource)) return false;
 
         Resource obj_t = (Resource) obj;
-        return this.resourceID == obj_t.resourceID;
+        return (this.resourceID == obj_t.resourceID && this.siteID == obj_t.siteID);
     }
 }

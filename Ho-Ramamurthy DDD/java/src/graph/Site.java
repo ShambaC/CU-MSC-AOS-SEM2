@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import statTableRows.processRow;
 import statTableRows.resourceRow;
@@ -13,12 +14,14 @@ import statTableRows.resourceRow;
  * <p>
  * It is a collection of nodes and resources
  */
-public class Site {
+public class Site implements Runnable{
 
     /**
      * The site ID
      */
     public int siteID;
+    
+    public List<Site> siteList = new ArrayList<>();
     
     /**
      * The list of nodes in the site
@@ -97,4 +100,37 @@ public class Site {
         Site obj_t = (Site) obj;
         return this.siteID == obj_t.siteID;
     }
+
+	@Override
+	public void run() {
+    	Random random = new Random();
+
+        while(true) {
+            synchronized(this) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+    
+                Node nodeSelect = this.nodeList.get(random.nextInt(this.nodeList.size()));
+                Resource res = this.resourceList.get(random.nextInt(this.resourceList.size()));
+    
+                if (nodeSelect.heldResources.contains(res) || nodeSelect.requestedResources.contains(res)) {
+                    continue;
+                }
+                    
+                boolean result = res.request(nodeSelect);
+                System.out.println("\n[Site " + this.siteID + "] Node " + nodeSelect.nodeID + " sent request to Resource " + res.resourceID);
+                if (result) {
+                    nodeSelect.heldResources.add(res);
+                    System.out.println("\n[Site " + this.siteID + "] Node " + nodeSelect.nodeID + " is now holding Resource " + res.resourceID);
+                }
+                else {
+                    nodeSelect.requestedResources.add(res);
+                    System.out.println("\n[Site " + this.siteID + "] Node " + nodeSelect.nodeID + " is now waiting for Resource " + res.resourceID);
+                }
+            }
+        }
+	}
 }

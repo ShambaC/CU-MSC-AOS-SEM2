@@ -6,9 +6,10 @@ import java.util.List;
 /**
  * Class that represents a node or a process
  */
-public class Node implements Runnable {
+public class Node{
     
     public int nodeID;
+    public int siteID;
 
     /**
      * A list of all resources that this node is currently holding
@@ -18,33 +19,17 @@ public class Node implements Runnable {
      * A list of all resources this node is currently requesting
      */
     public List<Resource> requestedResources = new ArrayList<>();
+    
 
-    /**
-     * A list of all globally available resources
-     */
-    private List<Resource> globalResourceList = new ArrayList<>();
 
     /**
      * Constructor to initialise a node with an ID
      * @param nodeID
+     * @param siteID
      */
-    public Node(int nodeID) {
+    public Node(int nodeID, int siteID) {
         this.nodeID = nodeID;
-    }
-
-    /**
-     * A method to set the global resource list
-     * @param globalResourceList
-     */
-    public void setResourceList(List<Resource> globalResourceList) {
-        this.globalResourceList = globalResourceList;
-    }
-
-    @Override
-    public void run() {
-        // TODO: Randomly choose resources to request
-        // Call the request method of a resource object
-        // Add no timers
+        this.siteID = siteID;
     }
 
     @Override
@@ -53,6 +38,6 @@ public class Node implements Runnable {
         if (!(obj instanceof Node)) return false;
 
         Node obj_t = (Node) obj;
-        return this.nodeID == obj_t.nodeID;
+        return (this.nodeID == obj_t.nodeID && this.siteID == obj_t.siteID);
     }
 }

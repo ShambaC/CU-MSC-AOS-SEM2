@@ -212,7 +212,6 @@ public class ControlSite {
         GWFG = new WaitForGraph();
         
         for (Site site : LWFGMap.keySet()) {
-            site.generateData();
             
             WaitForGraph localGraph = LWFGMap.get(site);
 
