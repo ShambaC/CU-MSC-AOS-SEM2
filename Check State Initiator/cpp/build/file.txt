@@ -1,0 +1,15 @@
+# Next data is the number of vertices in the graph
+
+5
+
+# Next set data is the edges
+
+A C
+A D
+A E
+B D
+C B
+C D
+D B
+E A
+E B
