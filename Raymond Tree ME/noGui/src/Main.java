@@ -116,6 +116,7 @@ public class Main {
                     if (showDetailedLog)    timer.start();
 
                     for (String nodeId : sequenceLines) {
+                        nodeId = nodeId.trim();
                         Thread.sleep(2000);
                         for (int i = 0; i < nodeList.size(); i++) {
                             Node node = nodeList.get(i);
