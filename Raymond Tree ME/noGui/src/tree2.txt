@@ -1,0 +1,12 @@
+9
+# this is a comment
+
+
+I F
+E B
+F B
+G B
+H C
+B A
+C A
+D A
