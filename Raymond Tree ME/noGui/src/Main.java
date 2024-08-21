@@ -37,6 +37,7 @@ public class Main {
         JFileChooser fc = new JFileChooser("./");
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
         fc.setFileFilter(filter);
+        fc.setDialogTitle("Open tree file");
         int res = fc.showOpenDialog(null);
 
         if (res == JFileChooser.APPROVE_OPTION) {
@@ -87,6 +88,7 @@ public class Main {
 
                 // Get the file with execution sequence
                 JFileChooser fc2 = new JFileChooser(fc.getSelectedFile());
+                fc2.setDialogTitle("Open sequence file");
                 int res2 = fc2.showOpenDialog(null);
                 if (res2 == JFileChooser.APPROVE_OPTION) {
                     String sequenceContent = new String(Files.readAllBytes(fc2.getSelectedFile().toPath()));
