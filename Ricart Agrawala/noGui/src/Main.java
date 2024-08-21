@@ -33,17 +33,17 @@ public class Main {
         if (res == JFileChooser.APPROVE_OPTION) {
             try {
                 String content = new String(Files.readAllBytes(fc.getSelectedFile().toPath())).trim();
-                // String[] lines = content.split("\\n");
-                String[] lines0 = content.split("\\n");
-                char[] lines = new char[lines0.length];
-                int k = 0;
-                for (String s : lines0) {
-                    lines[k++] = s.charAt(0);
-                }
+                String[] lines = content.split("\\n");
+                // String[] lines0 = content.split("\\n");
+                // char[] lines = new char[lines0.length];
+                // int k = 0;
+                // for (String s : lines0) {
+                //     lines[k++] = s.charAt(0);
+                // }
 
 
-                // int nodes = Integer.parseInt(lines[0]);
-                int nodes = lines[0] - '0';
+                int nodes = Integer.parseInt(lines[0].trim());
+                // int nodes = lines[0] - '0';
 
                 int resBool = JOptionPane.showConfirmDialog(null, "Do you want to log each node details every second ?", "Detail Log", JOptionPane.YES_NO_OPTION);
                 boolean showDetailedLog = resBool == 0 ? true : false;
@@ -85,8 +85,8 @@ public class Main {
 
                 // Actions will be performed every 2 seconds
                 for (int i = 1; i < lines.length; i++) {
-                    // int nodeNum = Integer.parseInt(lines[i]);
-                    int nodeNum = lines[i] - '0';
+                    int nodeNum = Integer.parseInt(lines[i].trim());
+                    // int nodeNum = lines[i] - '0';
                     Node node = nodeList.get(nodeNum);
                     Thread.sleep(2000);
                     node.doAction();

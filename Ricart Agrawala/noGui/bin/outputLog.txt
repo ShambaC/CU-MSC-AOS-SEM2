@@ -1,8 +1,5 @@
 All threads started
 
-Node1 thread run
-
-
 Node0 thread run
 
 
@@ -10,6 +7,9 @@ Node2 thread run
 
 
 Node3 thread run
+
+
+Node1 thread run
 
 
 Node0 requesting for CS at local clock counter: 1
@@ -23,15 +23,14 @@ Node2 replied true to Node0
 3 has received a request message from 0
 Node3 replied true to Node0
 
-Node0 going into CS for 1s
+Node0 going into CS for 3s
 
-
-Node0 is now done with CS
 
 Node1 requesting for CS at local clock counter: 4
 
 0 has received a request message from 1
-Node0 replied true to Node1
+Node0 added Node1 to its request List
+Node0 replied false to Node1
 
 2 has received a request message from 1
 Node2 replied true to Node1
@@ -39,7 +38,10 @@ Node2 replied true to Node1
 3 has received a request message from 1
 Node3 replied true to Node1
 
-Node1 going into CS for 6s
+Node0 is now done with CS
+Node0 gave approval to Node1 after CS
+
+Node1 going into CS for 3s
 
 
 Node2 requesting for CS at local clock counter: 8
@@ -54,30 +56,20 @@ Node1 replied false to Node2
 3 has received a request message from 2
 Node3 replied true to Node2
 
+Node1 is now done with CS
+Node1 gave approval to Node2 after CS
+
+Node2 going into CS for 3s
+
+
 Node3 requesting for CS at local clock counter: 13
 
 0 has received a request message from 3
 Node0 replied true to Node3
 
 1 has received a request message from 3
-Node1 added Node3 to its request List
-Node1 replied false to Node3
+Node1 replied true to Node3
 
 2 has received a request message from 3
 Node2 added Node3 to its request List
 Node2 replied false to Node3
-
-Node1 is now done with CS
-Node1 gave approval to Node2 after CS
-Node1 gave approval to Node3 after CS
-
-Node2 going into CS for 4s
-
-
-Node2 is now done with CS
-Node2 gave approval to Node3 after CS
-
-Node3 going into CS for 6s
-
-
-Node3 is now done with CS
