@@ -6,5 +6,5 @@
 */*.pdf
 
 # bin files
-*/java/bin
 */java/build
+*/*/bin
